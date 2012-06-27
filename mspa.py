@@ -42,7 +42,7 @@ def get_page(story, page):
 def get_asset(story, uri):
     if uri.endswith('.gif'):
         get_image(story, uri)
-    else
+    else:
         raise Exception('asset type ' + uri + ' not yet supported')
     
 def get_image(story, uri):
