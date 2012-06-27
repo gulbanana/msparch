@@ -7,16 +7,21 @@ template = template_file.read()
 template_file.close()
 
 def create_structure(story):
-    os.makedirs(story_dir(story)+'/scraps', exist_ok=True)
     os.makedirs('{0}'.format(story), exist_ok=True)
+    for directory in story_dirs(story):
+        os.makedirs(directory, exist_ok=True)
 
-def story_dir(story):
+def story_dirs(story):
     if story == 1:
-        return "advimgs/jb"
-    if story == 2:
-        return "advimgs/bq"
+        return ['advimgs/jb', 'advimgs/jb/lv2_option1', 'advimgs/jb/lv2_option2', 'advimgs/jb/lv3', 'advimgs/jb/lv4']
+    elif story == 2:
+        return ["advimgs/bq"]
+    elif story == 4:
+        return ["advimgs/ps"]
+    elif story == 5:
+        return ["storyfiles/hs"]
     elif story == 6:
-        return "storyfiles/hs2"
+        return ['storyfiles/hs2', 'storyfiles/hs2/scraps']
     else:
         raise Exception('story number ' + story + ' unknown')
 
@@ -35,7 +40,7 @@ def page_command(story, page):
     return text
 
 def save_image(story, image, data):
-    f = open('{0}/{1}'.format(story_dir(story), image), 'wb')
+    f = open('{0}/{1}'.format(story_dirs(story)[0], image), 'wb')
     f.write(data)
     f.close()
 

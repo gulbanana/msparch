@@ -1,6 +1,7 @@
 from urllib.request import urlopen
 from urllib.parse import urlparse
 from itertools import *
+import re
 import archive
 
 site_prefix = 'http://www.mspaintadventures.com/'
@@ -31,7 +32,6 @@ def get_page(story, page):
         return []
 
     definition = urlopen(definition_uri(story, page)).readall()
-    archive.save_page(story, page, definition)
 
     command, hash1, hash2, art, narration, next_pages = separated_sections(definition.splitlines())
 
@@ -39,17 +39,26 @@ def get_page(story, page):
        get_asset(story, line) 
 
     archive.gen_html(story, page, command[0], art, narration, next_pages)
+    archive.save_page(story, page, definition)
 
     return next_pages
 
 def get_asset(story, uri):
     if uri.endswith('.gif'):
         get_image(story, uri)
+    elif uri.endswith('.GIF'):
+        get_image(story, uri)
     else:
         raise Exception('asset type ' + uri + ' not yet supported')
     
 def get_image(story, uri):
-    filename = urlparse(uri).path.split('/')[-1]
+    # special case: jailbreak can have multi-level paths
+    if re.search('jb/', uri):
+        filename = urlparse(uri).path.split('jb/')[-1]
+    else:
+        filename = urlparse(uri).path.split('/')[-1]
+
+    print(filename)
     data = urlopen(uri).readall()
 
     archive.save_image(story, filename, data)
