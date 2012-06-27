@@ -1,4 +1,9 @@
 import os
+import sys
+
+template_file = open('template.html', 'r')
+template = template_file.read()
+template_file.close()
 
 def create_structure(story):
     os.makedirs(story_dir(story)+'/scraps', exist_ok=True)
@@ -25,4 +30,18 @@ def page_exists(story, page):
 def save_image(story, image, data):
     f = open('{0}/{1}'.format(story_dir(story), image), 'wb')
     f.write(data)
+    f.close()
+
+def gen_html(story, page, command, assets, content, links):
+    print('>',command)
+    sys.stdout.flush()
+
+    images = map(lambda url: '<img src="../{0}"/>'.format(url[33:]), assets)
+
+    anchors = map(lambda page: '<font size="5">&gt; <a href="{0}.html">{0}</a></font><br>'.format(page), links)
+
+    html = template.format(command=command, assets='<br><br>'.join(images), narration='<br>'.join(content), navigation=''.join(anchors))
+    
+    f = open('{0}/{1}.html'.format(story, page), 'w')
+    f.write(html)
     f.close()

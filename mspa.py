@@ -2,7 +2,6 @@ from urllib.request import urlopen
 from urllib.parse import urlparse
 from itertools import *
 import archive
-import sys
 
 site_prefix = 'http://www.mspaintadventures.com/'
 def definition_uri(story, page):
@@ -34,16 +33,12 @@ def get_page(story, page):
     definition = urlopen(definition_uri(story, page)).readall()
     archive.save_page(story, page, definition)
 
-    # parse the definition file into its components
     command, hash1, hash2, art, narration, next_pages = separated_sections(definition.splitlines())
 
-    # command at top of page
-    print('>',command[0])
-    sys.stdout.flush()
-
-    # one or more pieces of art
     for line in art:
        get_asset(story, line) 
+
+    archive.gen_html(story, page, command[0], art, narration, next_pages)
 
     return next_pages
 
