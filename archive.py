@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 
 template_file = open('template.html', 'r')
 template = template_file.read()
@@ -27,6 +28,12 @@ def save_page(story, page, data):
 def page_exists(story, page):
     return os.path.exists('{0}/{1}.txt'.format(story, page))
 
+def page_command(story, page):
+    f = open('{0}/{1}.txt'.format(story, page), 'r')
+    text = f.readline().strip()
+    f.close()
+    return text
+
 def save_image(story, image, data):
     f = open('{0}/{1}'.format(story_dir(story), image), 'wb')
     f.write(data)
@@ -45,3 +52,16 @@ def gen_html(story, page, command, assets, content, links):
     f = open('{0}/{1}.html'.format(story, page), 'w')
     f.write(html)
     f.close()
+
+def fix_links(story):
+    pages = filter(lambda path: path.endswith('.html'), os.listdir(str(story)))
+    for page in pages:
+        f = open('{0}/{1}'.format(story, page), 'r')
+        text = f.read()
+        f.close()
+
+        text = re.sub(r'>(\d*)</a>', lambda match: '>{0}</a>'.format(page_command(story, match.group(1))), text)
+
+        f = open('{0}/{1}'.format(story, page), 'w')
+        f.write(text)
+        f.close()
