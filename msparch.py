@@ -15,7 +15,7 @@ args = cmdline.parse_args()
 #do archiving
 archive.create_structure(args.story)
 
-pages = [args.page]
+pages = ['{0:06}'.format(args.page)]
 for page in pages:
     next_pages = mspa.get_page(args.story, page)
     pages.extend(next_pages)

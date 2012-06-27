@@ -161,3 +161,10 @@ pip-log.txt
 .mr.developer.cfg
 
 .DS_Store
+
+# project specific
+1
+2
+6
+advimgs
+storyfiles
