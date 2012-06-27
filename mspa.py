@@ -44,7 +44,9 @@ def get_page(story, page):
     return next_pages
 
 def get_asset(story, uri):
-    if uri.endswith('.gif'):
+    if uri.endswith('YOUWIN.gif'):
+        get_jailbreak_ending(story, uri)
+    elif uri.endswith('.gif'):
         get_image(story, uri)
     elif uri.endswith('.GIF'):
         get_image(story, uri)
@@ -58,7 +60,11 @@ def get_image(story, uri):
     else:
         filename = urlparse(uri).path.split('/')[-1]
 
-    print(filename)
     data = urlopen(uri).readall()
 
+    archive.save_image(story, filename, data)
+
+def get_jailbreak_ending(story, uri):
+    filename = '../../storyfiles/jb2/YOUWIN.gif'
+    data = urlopen(uri).readall()
     archive.save_image(story, filename, data)

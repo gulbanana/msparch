@@ -13,7 +13,7 @@ def create_structure(story):
 
 def story_dirs(story):
     if story == 1:
-        return ['advimgs/jb', 'advimgs/jb/lv2_option1', 'advimgs/jb/lv2_option2', 'advimgs/jb/lv3', 'advimgs/jb/lv4']
+        return ['advimgs/jb', 'advimgs/jb/lv2_option1', 'advimgs/jb/lv2_option2', 'advimgs/jb/lv3', 'advimgs/jb/lv4', 'storyfiles/jb2']
     elif story == 2:
         return ["advimgs/bq"]
     elif story == 4:
@@ -65,7 +65,7 @@ def fix_links(story):
         text = f.read()
         f.close()
 
-        text = re.sub(r'>(\d*)</a>', lambda match: '>{0}</a>'.format(page_command(story, match.group(1))), text)
+        text = re.sub(r'>((jb2_)?\d*)</a>', lambda match: '>{0}</a>'.format(page_command(story, match.group(1))), text)
 
         f = open('{0}/{1}'.format(story, page), 'w')
         f.write(text)
