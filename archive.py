@@ -26,23 +26,26 @@ def story_dirs(story):
         raise Exception('story number ' + story + ' unknown')
 
 def save_page(story, page, data):
-    f = open('{0}/{1}.txt'.format(story, page), 'wb')
-    f.write(data)
-    f.close()
+    with open('{0}/{1}.txt'.format(story, page), 'wb') as f:
+        f.write(data)
 
 def page_exists(story, page):
     return os.path.exists('{0}/{1}.txt'.format(story, page))
 
+def load_page(story, page):
+    with open('{0}/{1}.txt'.format(story, page), 'rb') as f:
+        return f.read()
+
 def page_command(story, page):
-    f = open('{0}/{1}.txt'.format(story, page), 'r')
-    text = f.readline().strip()
-    f.close()
-    return text
+    with open('{0}/{1}.txt'.format(story, page), 'r') as f:
+        return f.readline().strip()
 
 def save_image(story, image, data):
-    f = open('{0}/{1}'.format(story_dirs(story)[0], image), 'wb')
-    f.write(data)
-    f.close()
+    with open('{0}/{1}'.format(story_dirs(story)[0], image), 'wb') as f:
+        f.write(data)
+
+def image_exists(story, image):
+    return os.path.exists('{0}/{1}'.format(story_dirs(story)[0], image))
 
 def gen_html(story, page, command, assets, content, links):
     print('>',command)
@@ -54,19 +57,16 @@ def gen_html(story, page, command, assets, content, links):
 
     html = template.format(command=command, assets='<br><br>'.join(images), narration='<br>'.join(content), navigation=''.join(anchors))
     
-    f = open('{0}/{1}.html'.format(story, page), 'w')
-    f.write(html)
-    f.close()
+    with open('{0}/{1}.html'.format(story, page), 'w') as f:
+        f.write(html)
 
 def fix_links(story):
     pages = filter(lambda path: path.endswith('.html'), os.listdir(str(story)))
     for page in pages:
-        f = open('{0}/{1}'.format(story, page), 'r')
-        text = f.read()
-        f.close()
+        with open('{0}/{1}'.format(story, page), 'r') as pagefile:
+            text = pagefile.read()
 
         text = re.sub(r'>((jb2_)?\d*)</a>', lambda match: '>{0}</a>'.format(page_command(story, match.group(1))), text)
 
-        f = open('{0}/{1}'.format(story, page), 'w')
-        f.write(text)
-        f.close()
+        with open('{0}/{1}'.format(story, page), 'w') as pagefile:
+            pagefile.write(text)
