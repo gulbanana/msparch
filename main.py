@@ -4,6 +4,7 @@ from asq.initiators import query
 import argparse
 import mspa
 import archive
+import stories
 
 #parse args
 cmdline = argparse.ArgumentParser(description='Download MS Paint Adventures stories in an archival format.', add_help=True)
@@ -13,14 +14,14 @@ arguments.add_argument('page', type=int, default=0, nargs='?', help='Page on whi
 
 args = cmdline.parse_args()
 if args.page == 0:
-    args.page = archive.first_page(args.story)
+    args.page = stories.first_page(args.story)
 
-#do archiving
-archive.initialise(args.story)
+archiver = archive.MirroringArchiver(args.story)
+downloader = mspa.SiteReader(args.story, archiver)
 
 pages = ['{0:06}'.format(args.page)]
 for page in pages:
-    next_pages = mspa.get_page(args.story, page)
+    next_pages = downloader.get_page(page)
     pages.extend(query(next_pages).difference(pages))
 
-archive.finalise(args.story)
+archiver.finalise()

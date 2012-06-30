@@ -5,8 +5,8 @@ from asq.initiators import query
 import re
 import archive
 
-def definition_uri(story, page):
-    return archive.site_prefix + '{0}/{1}.txt'.format(story, page)
+# site-related constants
+site_prefix = 'http://www.mspaintadventures.com/'
 
 # parse a page's description file
 def separated_sections(iterable):
@@ -28,85 +28,88 @@ def separated_sections(iterable):
         else:
             accumulator.append(line.decode('iso8859-1'))
 
-# retrieve one page
-def get_page(story, page):
-    if archive.page_exists(story, page):
-        definition = archive.load_page(story, page)
-    else:
-        definition = urlopen(definition_uri(story, page)).readall()
-        archive.save_page(story, page, definition)
+# main reader class which pulls from the web
+class SiteReader:
+    def __init__(self, storyid, archiveimpl):
+        self.story = storyid
+        self.archiver = archiveimpl
 
-    command, hash1, hash2, art, narration, next_pages = separated_sections(definition.splitlines())
+    # retrieve one page
+    def get_page(self, page):
+        if self.archiver.page_exists(page):
+            definition = self.archiver.load_page(page)
+        else:
+            page_uri = site_prefix + '{0}/{1}.txt'.format(self.story, page)
+            definition = urlopen(page_uri).readall()
+            self.archiver.save_page(page, definition)
 
-    for line in art:
-       get_asset(story, line) 
+        command, hash1, hash2, art, narration, next_pages = separated_sections(definition.splitlines())
 
-    for line in narration:
-        for match in re.findall(archive.site_prefix+r'([^\?]*?)"', line):
-            get_asset(story, archive.site_prefix+match)
+        for line in art:
+           self.__get_asset(line) 
 
-    archive.gen_html(story, page, command[0], art, narration, next_pages)
+        for line in narration:
+            for match in re.findall(site_prefix+r'([^\?]*?)"', line):
+                self.__get_asset(site_prefix+match)
 
-    return next_pages
+        self.archiver.gen_html(page, command[0], art, narration, next_pages)
 
-# retrieve an non-page asset 
-def get_asset(story, uri):
-    if uri.startswith('F|'):
-        get_flash(story, uri[2:])
+        return next_pages
 
-    elif uri.endswith('YOUWIN.gif'):
-        get_other(story, uri)
-
-    elif uri.endswith('.gif') or uri.endswith('.GIF'):
-        get_image(story, uri)
-
-    elif re.search(r'extras.*html', uri):
-        get_donation_command(story, uri)
-        
-    else:
-        raise Exception('asset type {0} not supported'.format(uri))
+    # retrieve an non-page asset 
+    def __get_asset(self, uri):
+        if uri.startswith('F|'):
+            self.__get_flash(uri[2:])
+        elif uri.endswith('YOUWIN.gif'):
+            self.__get_other(uri)
+        elif uri.endswith('.gif') or uri.endswith('.GIF'):
+            self.__get_image(uri)
+        elif re.search(r'extras.*html', uri):
+            self.__get_donation_command(uri)
+        else:
+            raise Exception('asset type {0} not supported'.format(uri))
     
-# retrieve an image file
-def get_image(story, uri):
-    # special case: jailbreak can have multi-level paths
-    if re.search('jb/', uri):
-        filename = urlparse(uri).path.split('jb/')[-1]
-    else:
-        filename = urlparse(uri).path.split('/')[-1]
+    # retrieve an image file
+    def __get_image(self, uri):
+        # special case: jailbreak can have multi-level paths
+        if re.search('jb/', uri):
+            filename = urlparse(uri).path.split('jb/')[-1]
+        else:
+            filename = urlparse(uri).path.split('/')[-1]
 
-    if not archive.image_exists(story, filename):
-        data = urlopen(uri).readall()
-        archive.save_image(story, filename, data)
+        if not self.archiver.image_exists(filename):
+            data = urlopen(uri).readall()
+            self.archiver.save_image(filename, data)
 
-# retrieve a flash animation
-def get_flash(story, uri):
-    flashid = urlparse(uri).path.split('/')[-1]
+    # retrieve a flash animation
+    def __get_flash(self, uri):
+        flashid = urlparse(uri).path.split('/')[-1]
 
-    if not archive.flash_exists(story, flashid):
-        js = urlopen(uri + '/AC_RunActiveContent.js').readall()
-        swf = urlopen('{0}/{1}.swf'.format(uri, flashid)).readall()
-        archive.save_flash(story, flashid, js, swf)
+        if not self.archiver.flash_exists(flashid):
+            js = urlopen(uri + '/AC_RunActiveContent.js').readall()
+            swf = urlopen('{0}/{1}.swf'.format(uri, flashid)).readall()
+            self.archiver.save_flash(flashid, js, swf)
 
-# retrieve any type of file
-def get_other(story, uri):
-    filename = urlparse(uri).path[1:]
+    # retrieve any type of file
+    def __get_other(self, uri):
+        filename = urlparse(uri).path[1:]
 
-    if not archive.misc_exists(story, filename):
-        data = urlopen(uri).readall()
-        archive.save_misc(story, filename, data)
+        if not self.archiver.misc_exists(filename):
+            data = urlopen(uri).readall()
+            self.archiver.save_misc(filename, data)
 
-# retrieve a problem sleuth donation command
-def get_donation_command(story, uri):
-    html = urlopen(uri).readall().decode('iso8859-1')
+    # retrieve a problem sleuth donation command
+    def __get_donation_command(self, uri):
+        html = urlopen(uri).readall().decode('iso8859-1')
 
-    for img in re.findall(r'src="({0}.*?)"'.format(archive.site_prefix), html):
-        if not re.search(r'logo', img):
-            get_other(story, img)
-        imgfilename = urlparse(img).path[1:]
+        for img in re.findall(r'src="({0}.*?)"'.format(site_prefix), html):
+            if not re.search(r'logo', img):
+                self.__get_other(img)
+            imgfilename = urlparse(img).path[1:]
     
-    html = re.sub(r'src="{0}(.*?)"'.format(archive.site_prefix), r'src="../\1"', html)
+        html = re.sub(r'src="{0}(.*?)"'.format(site_prefix), r'src="../\1"', html)
         
-    filename = urlparse(uri).path[1:]
-    if not archive.misc_exists(story, filename):
-        archive.save_misc(story, filename, html.encode('iso8859-1'))
+        filename = urlparse(uri).path[1:]
+        if not self.archiver.misc_exists(filename):
+            self.archiver.save_misc(filename, html.encode('iso8859-1'))
 
