@@ -62,7 +62,7 @@ class SiteReader:
             self.__get_flash(uri[2:])
         elif uri.endswith('YOUWIN.gif'):
             self.__get_other(uri)
-        elif uri.endswith('.gif') or uri.endswith('.GIF'):
+        elif uri.endswith('.gif') or uri.endswith('.GIF') or uri.endswith('.jpg'):
             self.__get_image(uri)
         elif re.search(r'extras.*html', uri):
             self.__get_donation_command(uri)
