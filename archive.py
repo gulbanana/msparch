@@ -32,9 +32,10 @@ def first_page(story):
     elif story == 4:
         return 219
     else:
-        raise Exception('story id ' + story + ' not supported')
+        raise Exception('story id {0} not supported'.format(story))
 
 def _story_dirs(story):
+    story = int(story)
     if story == 1:
         return ['advimgs/jb', 'advimgs/jb/lv2_option1', 'advimgs/jb/lv2_option2', 'advimgs/jb/lv3', 'advimgs/jb/lv4', 'storyfiles/jb2']
     elif story == 2:
@@ -46,7 +47,7 @@ def _story_dirs(story):
     elif story == 6:
         return ['storyfiles/hs2', 'storyfiles/hs2/scraps']
     else:
-        raise Exception('story number ' + story + ' unknown')
+        raise Exception('story number {0} unknown'.format(story))
 
 ### pages ###
 def save_page(story, page, data):
