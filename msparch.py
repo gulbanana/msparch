@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 from collections import deque
 from asq.initiators import query
 import argparse

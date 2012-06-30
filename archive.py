@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+from urllib.request import urlretrieve
 
 with open('template.html', 'r') as template_file:
     _template = template_file.read()
@@ -81,7 +82,7 @@ def gen_html(story, page, command, assets, content, links):
 
     images = map(_format_image, assets)
 
-    anchors = map(lambda page: '<font size="5">&gt; <a href="{0}.html">{0}</a></font><br>'.format(page), links)
+    anchors = map(_format_anchor, links)
 
     content = map(_rewrite_links, content)
     content = _rewrite_dialogue(content)
@@ -94,15 +95,23 @@ def gen_html(story, page, command, assets, content, links):
 def _format_image(url):
     return '<img src="../{0}"/>'.format(url[33:])
 
-def _format_internal_link(match):
+def _format_anchor(page):
+    return '<font size="5">&gt; <a href="{0}.html">{0}</a></font><br>'.format(page)
+
+def _format_internal_page(match):
     story = match.group(1)
     page = match.group(3)
     if page == None:
         page = '{0:6}'.format(first_page(story))
     return '../{0}/{1}.html'.format(story, page)
 
+def _format_internal_image(match):
+    filename = match.group(1)
+    return '../{0}'.format(filename)
+
 def _rewrite_links(text):
-    text = re.sub(_site_prefix+r'\?s=(\d*)(&amp;p=(\d*))?', _format_internal_link, text)
+    text = re.sub(_site_prefix+r'\?s=(\d*)(&amp;p=(\d*))?', _format_internal_page, text)
+    text = re.sub(_site_prefix+r'(.*)', _format_internal_image, text)
     return text
 
 def _rewrite_dialogue(text):
