@@ -18,6 +18,8 @@ class MirroringArchiver:
             self._html_template = template_file.read()
         with open('templates/flash.txt', 'r') as template_file:
             self._object_template = template_file.read()
+        with open('templates/pesterlog.txt', 'r') as template_file:
+            self._log_template = template_file.read()
 
         os.makedirs('images', exist_ok=True)
         self.__get_global('images/logo.gif')
@@ -99,9 +101,9 @@ class MirroringArchiver:
         images = map(self.__format_asset, assets)
         anchors = map(self.__format_anchor, links)
         content = map(self.__rewrite_links, content)
-        content = self.__rewrite_dialogue(content)
+        content = self.__rewrite_dialogue(list(content))
 
-        html = self._html_template.format(command=command, assets='<br><br>'.join(images), narration='<br>'.join(content), navigation=''.join(anchors))
+        html = self._html_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
     
         with open('{0}/{1}.html'.format(self.story, page), 'w') as f:
             f.write(html)
@@ -144,4 +146,9 @@ class MirroringArchiver:
         return text
 
     def __rewrite_dialogue(self, text):
+        logtype = re.match(r'\|(.*)\|', text[0])
+
+        if logtype != None:
+            return [self._log_template.format(title=logtype.group(1).capitalize(), pesterlog='<br/>\n'.join(text[1:]))]
+            
         return text

@@ -1,4 +1,4 @@
 Usage
 -----
 
-    ./msparch.py storyid [pageid]
+    ./main.py storyid [pageid]

@@ -1,6 +1,20 @@
 <html>
     <head>
         <title>MS Paint Adventures</title>
+        <style type="text/css">
+        <!--
+        body,td,th {{
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            color: #000000;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }}
+        body {{
+    	    background-color: #535353;
+        }}
+        -->
+        </style>
     </head>
     <body bgcolor="5a5a5a" style="font-family: Verdana, Arial, Helvetica, sans-serif">
 	<center><table width="950" height="" cellpadding="0" cellspacing="0" border="0" bgcolor="" background="">
@@ -35,13 +49,15 @@
 
                                     <tr>
                                         <td bgcolor="#EEEEEE">
-                                            <table width="600" border="0" align="center" cellpadding="0" cellspacing="0"><tbody><tr>
-                                            <td>
-                                            <center><p style=" font-weight: bold; font-family: courier, monospace;color:#000000; font-size: 14">
-                                                {narration}
-                                            </p></center>
-                                            </td>
-                                            </tr></tbody></table>
+	                                    <table width="600" border="0" align="center" cellpadding="0" cellspacing="0">
+						<tr>
+	                                        <td>
+                                                <center><p style="font-weight: bold; font-family: courier, monospace;color:#000000;">
+						    {narration}
+						</p></center>
+						</td>
+						</tr>
+					    </table>
                                         </td>
                                     </tr>
 

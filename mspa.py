@@ -9,7 +9,7 @@ import archive
 site_prefix = 'http://www.mspaintadventures.com/'
 
 # parse a page's description file
-def separated_sections(iterable):
+def _separated_sections(iterable):
     sections = []
     accumulator = []
 
@@ -43,7 +43,7 @@ class SiteReader:
             definition = urlopen(page_uri).readall()
             self.archiver.save_page(page, definition)
 
-        command, hash1, hash2, art, narration, next_pages = separated_sections(definition.splitlines())
+        command, hash1, hash2, art, narration, next_pages = _separated_sections(definition.splitlines())
 
         for line in art:
            self.__get_asset(line) 
