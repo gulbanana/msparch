@@ -5,13 +5,22 @@ from urllib.request import urlretrieve
 
 with open('template.html', 'r') as template_file:
     _template = template_file.read()
-_site_prefix = 'http://www.mspaintadventures.com/'
+
+site_prefix = 'http://www.mspaintadventures.com/'
 
 ### stories ###
 def initialise(story):
+    os.makedirs('images', exist_ok=True)
+    _get_global('images/logo.gif')
+    _get_global('images/title.png')
+
     os.makedirs('{0}'.format(story), exist_ok=True)
     for directory in _story_dirs(story):
         os.makedirs(directory, exist_ok=True)
+
+def _get_global(filename):
+    if not os.path.exists(filename):
+        urlretrieve(site_prefix+filename, filename)
 
 def finalise(story):
     pages = filter(lambda path: path.endswith('.html'), os.listdir(str(story)))
@@ -75,6 +84,18 @@ def save_image(story, image, data):
 def image_exists(story, image):
     return os.path.exists('{0}/{1}'.format(_story_dirs(story)[0], image))
 
+### misc. assets and special cases ###
+def save_misc(story, filename, data):
+    with open(filename, 'wb') as f:
+        f.write(data)
+
+def misc_exists(story, filename):
+    return os.path.exists(filename)
+
+def load_misc(story, filename):
+    with open(filename, 'rb') as f:
+        return f.read()
+
 ### html output ###
 def gen_html(story, page, command, assets, content, links):
     print('>',command)
@@ -93,7 +114,7 @@ def gen_html(story, page, command, assets, content, links):
         f.write(html)
 
 def _format_image(url):
-    return '<img src="../{0}"/>'.format(url[33:])
+    return '<img src="../{0}"/>'.format(url[len(site_prefix):])
 
 def _format_anchor(page):
     return '<font size="5">&gt; <a href="{0}.html">{0}</a></font><br>'.format(page)
@@ -107,11 +128,11 @@ def _format_internal_page(match):
 
 def _format_internal_image(match):
     filename = match.group(1)
-    return '../{0}'.format(filename)
+    return '../{0}"'.format(filename)
 
 def _rewrite_links(text):
-    text = re.sub(_site_prefix+r'\?s=(\d*)(&amp;p=(\d*))?', _format_internal_page, text)
-    text = re.sub(_site_prefix+r'(.*)', _format_internal_image, text)
+    text = re.sub(site_prefix+r'\?s=(\d*)(&amp;p=(\d*))?', _format_internal_page, text)
+    text = re.sub(site_prefix+r'(.*)"', _format_internal_image, text)
     return text
 
 def _rewrite_dialogue(text):

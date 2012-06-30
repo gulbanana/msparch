@@ -5,10 +5,10 @@ from asq.initiators import query
 import re
 import archive
 
-site_prefix = 'http://www.mspaintadventures.com/'
 def definition_uri(story, page):
-    return site_prefix + '{0}/{1}.txt'.format(story, page)
+    return archive.site_prefix + '{0}/{1}.txt'.format(story, page)
 
+# parse a page's description file
 def separated_sections(iterable):
     sections = []
     accumulator = []
@@ -28,6 +28,7 @@ def separated_sections(iterable):
         else:
             accumulator.append(line.decode('iso8859-1'))
 
+# retrieve one page
 def get_page(story, page):
     if archive.page_exists(story, page):
         definition = archive.load_page(story, page)
@@ -40,20 +41,29 @@ def get_page(story, page):
     for line in art:
        get_asset(story, line) 
 
+    for line in narration:
+        for match in re.findall(archive.site_prefix+r'([^\?]*?)"', line):
+            get_asset(story, archive.site_prefix+match)
+
     archive.gen_html(story, page, command[0], art, narration, next_pages)
 
     return next_pages
 
+# retrieve an non-page asset 
 def get_asset(story, uri):
     if uri.endswith('YOUWIN.gif'):
-        get_jailbreak_ending(story, uri)
-    elif uri.endswith('.gif'):
+        get_other(story, uri)
+
+    elif uri.endswith('.gif') or uri.endswith('.GIF'):
         get_image(story, uri)
-    elif uri.endswith('.GIF'):
-        get_image(story, uri)
+
+    elif re.search(r'extras.*html', uri):
+        get_donation_command(story, uri)
+        
     else:
-        raise Exception('asset type ' + uri + ' not supported')
+        raise Exception('asset type {0} not supported'.format(uri))
     
+# retrieve an image file
 def get_image(story, uri):
     # special case: jailbreak can have multi-level paths
     if re.search('jb/', uri):
@@ -65,7 +75,26 @@ def get_image(story, uri):
         data = urlopen(uri).readall()
         archive.save_image(story, filename, data)
 
-def get_jailbreak_ending(story, uri):
-    filename = '../../storyfiles/jb2/YOUWIN.gif'
-    data = urlopen(uri).readall()
-    archive.save_image(story, filename, data)
+# retrieve any type of file
+def get_other(story, uri):
+    filename = uri[len(archive.site_prefix):]
+
+    if not archive.misc_exists(story, filename):
+        data = urlopen(uri).readall()
+        archive.save_misc(story, filename, data)
+
+# retrieve a problem sleuth donation command
+def get_donation_command(story, uri):
+    html = urlopen(uri).readall().decode('iso8859-1')
+
+    for img in re.findall(r'src="({0}.*?)"'.format(archive.site_prefix), html):
+        if not re.search(r'logo', img):
+            get_other(story, img)
+        imgfilename = img[len(archive.site_prefix):]
+    
+    html = re.sub(r'src="{0}(.*?)"'.format(archive.site_prefix), r'src="../\1"', html)
+        
+    filename = uri[len(archive.site_prefix):]
+    if not archive.misc_exists(story, filename):
+        archive.save_misc(story, filename, html.encode('iso8859-1'))
+
