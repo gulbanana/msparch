@@ -13,14 +13,14 @@ arguments.add_argument('page', type=int, default=0, nargs='?', help='Page on whi
 
 args = cmdline.parse_args()
 if args.page == 0:
-    args.page = mspa.first_page(args.story)
+    args.page = archive.first_page(args.story)
 
 #do archiving
-archive.create_structure(args.story)
+archive.initialise(args.story)
 
 pages = ['{0:06}'.format(args.page)]
 for page in pages:
     next_pages = mspa.get_page(args.story, page)
     pages.extend(query(next_pages).difference(pages))
 
-archive.fix_links(args.story)
+archive.finalise(args.story)

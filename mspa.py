@@ -69,13 +69,3 @@ def get_jailbreak_ending(story, uri):
     filename = '../../storyfiles/jb2/YOUWIN.gif'
     data = urlopen(uri).readall()
     archive.save_image(story, filename, data)
-
-def first_page(story):
-    if story == 1:
-        return 2
-    elif story == 2:
-        return 136
-    elif story == 4:
-        return 219
-    else:
-        raise Exception('story id ' + uri + ' not supported')
