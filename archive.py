@@ -2,11 +2,15 @@ import os
 import sys
 import re
 from urllib.request import urlretrieve
+from urllib.parse import urlparse
 
-with open('template.html', 'r') as template_file:
-    _template = template_file.read()
-
+#constants
 site_prefix = 'http://www.mspaintadventures.com/'
+
+with open('templates/page.txt', 'r') as template_file:
+    _html_template = template_file.read()
+with open('templates/flash.txt', 'r') as template_file:
+    _object_template = template_file.read()
 
 ### stories ###
 def initialise(story):
@@ -90,6 +94,22 @@ def save_image(story, image, data):
 def image_exists(story, image):
     return os.path.exists('{0}/{1}'.format(_story_dirs(story)[0], image))
 
+### flash animations ###
+def save_flash(story, flashid, script, flash):
+    root = _story_dirs(story)[0]
+
+    os.makedirs('{0}/{1}'.format(root, flashid), exist_ok=False)
+    
+    with open('{0}/{1}/AC_RunActiveContent.js'.format(root, flashid), 'wb') as script_file:
+        script_file.write(script)
+
+    with open('{0}/{1}/{1}.swf'.format(root, flashid), 'wb') as flash_file:
+        flash_file.write(flash)
+
+def flash_exists(story, flashid):
+    root = _story_dirs(story)[0]
+    return os.path.exists('{0}/{1}'.format(root, flashid))
+
 ### misc. assets and special cases ###
 def save_misc(story, filename, data):
     with open(filename, 'wb') as f:
@@ -107,20 +127,37 @@ def gen_html(story, page, command, assets, content, links):
     print('>',command)
     sys.stdout.flush()
 
-    images = map(_format_image, assets)
+    images = map(_format_asset, assets)
 
     anchors = map(_format_anchor, links)
 
     content = map(_rewrite_links, content)
     content = _rewrite_dialogue(content)
 
-    html = _template.format(command=command, assets='<br><br>'.join(images), narration='<br>'.join(content), navigation=''.join(anchors))
+    html = _html_template.format(command=command, assets='<br><br>'.join(images), narration='<br>'.join(content), navigation=''.join(anchors))
     
     with open('{0}/{1}.html'.format(story, page), 'w') as f:
         f.write(html)
 
-def _format_image(url):
-    return '<img src="../{0}"/>'.format(url[len(site_prefix):])
+def _format_asset(url):
+    if url.endswith('.gif') or url.endswith('.GIF'):
+        return _format_image(url)
+    elif url.startswith('F|'):
+        return _format_flash(url[2:])
+    else:
+        raise Exception('unrecognised asset type '+url)
+
+def _format_image(asset_uri):
+    return '<img src="../{0}"/>'.format(asset_uri[len(site_prefix):])
+
+def _format_flash(flash_uri):
+    flashid = urlparse(flash_uri).path.split('/')[-1]
+    root = _story_dirs('5')[0]
+
+    return _object_template.format(
+        id='../{0}/{1}/{1}'.format(root,flashid), 
+        swf='../{0}/{1}/{1}.swf'.format(root,flashid), 
+        js='../{0}/{1}/AC_RunActiveContent.js'.format(root,flashid))
 
 def _format_anchor(page):
     return '<font size="5">&gt; <a href="{0}.html">{0}</a></font><br>'.format(page)
@@ -129,7 +166,7 @@ def _format_internal_page(match):
     story = match.group(1)
     page = match.group(3)
     if page == None:
-        page = '{0:6}'.format(first_page(story))
+        page = '{0:06}'.format(first_page(story))
     return '../{0}/{1}.html'.format(story, page)
 
 def _format_internal_image(match):

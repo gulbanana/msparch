@@ -51,7 +51,10 @@ def get_page(story, page):
 
 # retrieve an non-page asset 
 def get_asset(story, uri):
-    if uri.endswith('YOUWIN.gif'):
+    if uri.startswith('F|'):
+        get_flash(story, uri[2:])
+
+    elif uri.endswith('YOUWIN.gif'):
         get_other(story, uri)
 
     elif uri.endswith('.gif') or uri.endswith('.GIF'):
@@ -75,9 +78,18 @@ def get_image(story, uri):
         data = urlopen(uri).readall()
         archive.save_image(story, filename, data)
 
+# retrieve a flash animation
+def get_flash(story, uri):
+    flashid = urlparse(uri).path.split('/')[-1]
+
+    if not archive.flash_exists(story, flashid):
+        js = urlopen(uri + '/AC_RunActiveContent.js').readall()
+        swf = urlopen('{0}/{1}.swf'.format(uri, flashid)).readall()
+        archive.save_flash(story, flashid, js, swf)
+
 # retrieve any type of file
 def get_other(story, uri):
-    filename = uri[len(archive.site_prefix):]
+    filename = urlparse(uri).path[1:]
 
     if not archive.misc_exists(story, filename):
         data = urlopen(uri).readall()
@@ -90,11 +102,11 @@ def get_donation_command(story, uri):
     for img in re.findall(r'src="({0}.*?)"'.format(archive.site_prefix), html):
         if not re.search(r'logo', img):
             get_other(story, img)
-        imgfilename = img[len(archive.site_prefix):]
+        imgfilename = urlparse(img).path[1:]
     
     html = re.sub(r'src="{0}(.*?)"'.format(archive.site_prefix), r'src="../\1"', html)
         
-    filename = uri[len(archive.site_prefix):]
+    filename = urlparse(uri).path[1:]
     if not archive.misc_exists(story, filename):
         archive.save_misc(story, filename, html.encode('iso8859-1'))
 
