@@ -30,6 +30,9 @@ def _get_global(filename):
     if not os.path.exists(path):
         urlretrieve(site_prefix+filename, path)
 
+def _mkdir(directory):
+    os.makedirs(os.path.join(appdir, directory), exist_ok=True)
+
 # archiver which maintains a layout like that of mspa.com
 class MirroringArchiver:
     def __init__(self, storyid):
@@ -40,13 +43,13 @@ class MirroringArchiver:
         self._object_template = _load_template('flash.txt')
         self._log_template = _load_template('pesterlog.txt')
 
-        os.makedirs('images', exist_ok=True)
+        _mkdir('images')
         _get_global('images/logo.gif')
         _get_global('images/title.png')
 
-        os.makedirs('{0}'.format(self.story), exist_ok=True)
+        _mkdir('{0}'.format(self.story))
         for directory in stories.dirs(self.story):
-            os.makedirs(directory, exist_ok=True)
+            _mkdir(directory)
 
     def finalise(self):
         pages = filter(lambda path: path.endswith('.html'), os.listdir(str(self.story)))
@@ -85,7 +88,7 @@ class MirroringArchiver:
 
     ### flash animations ###
     def save_flash(self, flashid, script, flash):
-        os.makedirs('{0}/{1}'.format(self.root, flashid), exist_ok=False)
+        _mkdir('{0}/{1}'.format(self.root, flashid))
     
         with open('{0}/{1}/AC_RunActiveContent.js'.format(self.root, flashid), 'wb') as script_file:
             script_file.write(script)
@@ -98,15 +101,23 @@ class MirroringArchiver:
 
     ### misc. assets and special cases ###
     def save_misc(self, filename, data):
-        with open(filename, 'wb') as f:
-            f.write(data)
+        if filename.endswith('/'):
+            _mkdir(filename)
+            _save_binary(filename, 'index.html', data)
+        else:
+            _save_binary('', filename, data)
 
     def misc_exists(self, filename):
-        return os.path.exists(filename)
+        if filename.endswith('/'):
+            return _exists(filename, 'index.html')
+        else:
+            return _exists('', filename)
 
     def load_misc(self, filename):
-        with open(filename, 'rb') as f:
-            return f.read()
+        if filename.endswith('/'):
+            return _load_binary(filename, 'index.html')
+        else:
+            return _load_binary('', filename)
 
     ### html output ###
     def gen_html(self, page, command, assets, content, links):

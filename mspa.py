@@ -59,18 +59,20 @@ class SiteReader:
     # retrieve an non-page asset 
     def __get_asset(self, uri):
         if uri.startswith('F|'):
-            self.__get_flash(uri[2:])
+            self._get_flash(uri[2:])
         elif uri.endswith('YOUWIN.gif'):
-            self.__get_other(uri)
+            self._get_other(uri)
         elif uri.endswith('.gif') or uri.endswith('.GIF') or uri.endswith('.jpg'):
-            self.__get_image(uri)
+            self._get_image(uri)
         elif re.search(r'extras.*html', uri):
-            self.__get_donation_command(uri)
+            self._get_standalone(uri)
+        elif re.search(r'waywardvagabond', uri):
+            self._get_standalone(uri)
         else:
             raise Exception('asset type {0} not supported'.format(uri))
     
     # retrieve an image file
-    def __get_image(self, uri):
+    def _get_image(self, uri):
         # special case: jailbreak can have multi-level paths
         if re.search('jb/', uri):
             filename = urlparse(uri).path.split('jb/')[-1]
@@ -82,7 +84,7 @@ class SiteReader:
             self.archiver.save_image(filename, data)
 
     # retrieve a flash animation
-    def __get_flash(self, uri):
+    def _get_flash(self, uri):
         flashid = urlparse(uri).path.split('/')[-1]
 
         if not self.archiver.flash_exists(flashid):
@@ -91,25 +93,30 @@ class SiteReader:
             self.archiver.save_flash(flashid, js, swf)
 
     # retrieve any type of file
-    def __get_other(self, uri):
+    def _get_other(self, uri):
         filename = urlparse(uri).path[1:]
 
         if not self.archiver.misc_exists(filename):
             data = urlopen(uri).readall()
             self.archiver.save_misc(filename, data)
 
-    # retrieve a problem sleuth donation command
-    def __get_donation_command(self, uri):
-        html = urlopen(uri).readall().decode('iso8859-1')
+    # retrieve an independent page with its own images and html
+    def _get_standalone(self, uri):
+        filename = urlparse(uri).path[1:]
+        if self.archiver.misc_exists(filename):
+            data = self.archiver.load_misc(filename)
+        else:
+            data = urlopen(uri).readall()
 
-        for img in re.findall(r'src="({0}.*?)"'.format(site_prefix), html):
-            if not re.search(r'logo', img):
-                self.__get_other(img)
-            imgfilename = urlparse(img).path[1:]
-    
+        html = data.decode('iso8859-1')
+
+        for img in re.findall(r'src="(.*?)"', html):
+            if re.search(r'logo', img):
+                pass
+            elif re.search(site_prefix, img):
+                self._get_other(img)
+
         html = re.sub(r'src="{0}(.*?)"'.format(site_prefix), r'src="../\1"', html)
         
-        filename = urlparse(uri).path[1:]
-        if not self.archiver.misc_exists(filename):
-            self.archiver.save_misc(filename, html.encode('iso8859-1'))
+        self.archiver.save_misc(filename, html.encode('iso8859-1'))
 
