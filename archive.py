@@ -167,9 +167,12 @@ class MirroringArchiver:
             page = '{0:06}'.format(stories.first_page(story))
         return '../{0}/{1}.html'.format(story, page)
 
-    def _format_internal_image(self, match):
+    def _format_internal_asset(self, match):
         filename = match.group(1)
-        return '../{0}"'.format(filename)
+        if re.search('sweetbroandhellajeff', filename):
+            return '{0}{1}"'.format(site_prefix, filename)
+        else:
+            return '../{0}"'.format(filename)
 
     def _format_wv(self, match):
         vagabond = match.group(0)
@@ -177,7 +180,7 @@ class MirroringArchiver:
 
     def _rewrite_links(self, text):
         text = re.sub(site_prefix+r'\?s=(\d*)(&amp;p=(\d*))?', self._format_internal_page, text)
-        text = re.sub(site_prefix+r'(.*)"', self._format_internal_image, text)
+        text = re.sub(site_prefix+r'(.*)"', self._format_internal_asset, text)
         text = re.sub(r'waywardvagabond/(.*?)/', self._format_wv, text)
         return text
 

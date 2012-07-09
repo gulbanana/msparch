@@ -51,7 +51,8 @@ class SiteReader:
 
         for line in narration:
             for match in re.findall(site_prefix+r'([^\?]*?)"', line):
-                self._get_asset(site_prefix+match)
+                if not re.search('sweetbroandhellajeff', match):
+                    self._get_asset(site_prefix+match)
 
         self.archiver.gen_html(page, command[0], art, narration, next_pages)
 
