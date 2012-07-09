@@ -19,6 +19,7 @@ def _load_binary(directory, filename):
         return f.read()
 
 def _save_binary(directory, filename, data):
+    filename = os.path.join(*filename.split('/'))
     with open(os.path.join(appdir, directory, filename), 'wb') as f:
         f.write(data)
 
@@ -118,6 +119,10 @@ class MirroringArchiver:
             return _load_binary(filename, 'index.html')
         else:
             return _load_binary('', filename)
+
+    def logo_path(self, remote):
+        components = len(remote.split('/'))
+        return '../' * (components-1) + 'images/logo.gif'
 
     ### html output ###
     def gen_html(self, page, command, assets, content, links):

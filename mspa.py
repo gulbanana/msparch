@@ -6,7 +6,8 @@ import re
 import archive
 
 # site-related constants
-site_prefix = 'http://www.mspaintadventures.com/'
+site_prefix = r'http://www.mspaintadventures.com/'
+site_logo = r'http://www.mspaintadventures.com/images/logo.gif'
 
 # parse a page's description file
 def _separated_sections(iterable):
@@ -46,18 +47,18 @@ class SiteReader:
         command, hash1, hash2, art, narration, next_pages = _separated_sections(definition.splitlines())
 
         for line in art:
-           self.__get_asset(line) 
+           self._get_asset(line) 
 
         for line in narration:
             for match in re.findall(site_prefix+r'([^\?]*?)"', line):
-                self.__get_asset(site_prefix+match)
+                self._get_asset(site_prefix+match)
 
         self.archiver.gen_html(page, command[0], art, narration, next_pages)
 
         return next_pages
 
     # retrieve an non-page asset 
-    def __get_asset(self, uri):
+    def _get_asset(self, uri):
         if uri.startswith('F|'):
             self._get_flash(uri[2:])
         elif uri.endswith('YOUWIN.gif'):
@@ -110,13 +111,15 @@ class SiteReader:
 
         html = data.decode('iso8859-1')
 
-        for img in re.findall(r'src="(.*?)"', html):
-            if re.search(r'logo', img):
-                pass
-            elif re.search(site_prefix, img):
-                self._get_other(img)
-
-        html = re.sub(r'src="{0}(.*?)"'.format(site_prefix), r'src="../\1"', html)
+        modhtml = re.sub(site_logo, self.archiver.logo_path(filename), html)
+        modhtml = re.sub(r'src="{0}(.*?)"'.format(site_prefix), r'src="../\1"', modhtml)
         
-        self.archiver.save_misc(filename, html.encode('iso8859-1'))
+        self.archiver.save_misc(filename, modhtml.encode('iso8859-1'))
 
+        for img in re.findall(r'src="(.*?)"', html):
+            if re.search(r'logo', img): # site logo
+                pass
+            elif re.search(r'\.\.', img):  # donation command images
+                self._get_other(img)
+            else:                       # wayward vagabond images
+                self._get_other('{0}{1}'.format(uri, img))
