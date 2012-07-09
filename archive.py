@@ -171,9 +171,14 @@ class MirroringArchiver:
         filename = match.group(1)
         return '../{0}"'.format(filename)
 
+    def _format_wv(self, match):
+        vagabond = match.group(0)
+        return '{0}index.html'.format(vagabond)
+
     def _rewrite_links(self, text):
         text = re.sub(site_prefix+r'\?s=(\d*)(&amp;p=(\d*))?', self._format_internal_page, text)
         text = re.sub(site_prefix+r'(.*)"', self._format_internal_image, text)
+        text = re.sub(r'waywardvagabond/(.*?)/', self._format_wv, text)
         return text
 
     def _rewrite_dialogue(self, text):
