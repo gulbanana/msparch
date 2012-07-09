@@ -62,13 +62,11 @@ class SiteReader:
     def _get_asset(self, uri):
         if uri.startswith('F|'):
             self._get_flash(uri[2:])
-        elif uri.endswith('YOUWIN.gif'):
+        elif uri.endswith('YOUWIN.gif') or uri.endswith('.swf'):
             self._get_other(uri)
         elif uri.endswith('.gif') or uri.endswith('.GIF') or uri.endswith('.jpg'):
             self._get_image(uri)
-        elif re.search(r'extras.*html', uri):
-            self._get_standalone(uri)
-        elif re.search(r'waywardvagabond', uri):
+        elif re.search(r'extras.*html', uri) or re.search(r'waywardvagabond', uri):
             self._get_standalone(uri)
         else:
             raise Exception('asset type {0} not supported'.format(uri))
