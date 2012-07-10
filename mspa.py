@@ -51,7 +51,7 @@ class SiteReader:
 
         for line in narration:
             for match in re.findall(site_prefix+r'([^\?]*?)"', line):
-                if not re.search('sweetbroandhellajeff', match):
+                if not 'sweetbroandhellajeff' in match:
                     self._get_asset(site_prefix+match)
 
         self.archiver.gen_html(page, command[0], art, narration, next_pages)
@@ -62,11 +62,13 @@ class SiteReader:
     def _get_asset(self, uri):
         if uri.startswith('F|'):
             self._get_flash(uri[2:])
-        elif uri.endswith('YOUWIN.gif') or uri.endswith('.swf') or uri.endswith('.mp3'):
+        elif uri.endswith('YOUWIN.gif'):
             self._get_other(uri)
         elif uri.endswith('.gif') or uri.endswith('.GIF') or uri.endswith('.jpg'):
             self._get_image(uri)
-        elif re.search(r'extras.*html', uri) or re.search(r'waywardvagabond', uri):
+        elif 'scraps' in uri:
+            self._get_other(uri)
+        elif re.search(r'extras.*html', uri) or 'waywardvagabond' in uri:
             self._get_standalone(uri)
         else:
             raise Exception('asset type {0} not supported'.format(uri))
@@ -74,7 +76,7 @@ class SiteReader:
     # retrieve an image file
     def _get_image(self, uri):
         # special case: jailbreak can have multi-level paths
-        if re.search('jb/', uri):
+        if 'jb/' in uri:
             filename = urlparse(uri).path.split('jb/')[-1]
         else:
             filename = urlparse(uri).path.split('/')[-1]
@@ -116,9 +118,9 @@ class SiteReader:
         self.archiver.save_misc(filename, modhtml.encode('iso8859-1'))
 
         for img in re.findall(r'src="(.*?)"', html):
-            if re.search(r'logo', img):    # site logo
+            if 'logo' in img:    # site logo
                 pass
-            elif re.search(r'\.\.', img):  # donation command images
+            elif '..' in img:  # donation command images
                 self._get_other('{0}{1}'.format(site_prefix, img[3:]))
             else:                          # wayward vagabond images
                 self._get_other('{0}{1}'.format(uri, img))

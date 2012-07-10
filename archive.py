@@ -169,7 +169,7 @@ class MirroringArchiver:
 
     def _format_internal_asset(self, match):
         filename = match.group(1)
-        if re.search('sweetbroandhellajeff', filename):
+        if 'sweetbroandhellajeff' in filename:
             return '{0}{1}"'.format(site_prefix, filename)
         else:
             return '../{0}"'.format(filename)
