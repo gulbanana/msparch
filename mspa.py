@@ -4,6 +4,7 @@ from itertools import *
 from asq.initiators import query
 import re
 import archive
+import stories
 
 # site-related constants
 site_prefix = r'http://www.mspaintadventures.com/'
@@ -54,9 +55,16 @@ class SiteReader:
         if page == '005643':
             next_pages = ['005644']
 
+        # scratch banners
+        room = stories.scratch_banner(int(page))
+        if room:
+            self._get_asset(site_prefix+'storyfiles/hs2/scratch/'+room)
+
+        # main images
         for line in art:
            self._get_asset(line) 
 
+        # inline images
         for line in narration:
             for match in re.findall(site_prefix+r'([^\?]*?)"', line):
                 if not 'sweetbroandhellajeff' in match:
@@ -70,12 +78,10 @@ class SiteReader:
     def _get_asset(self, uri):
         if uri.startswith('F|'):
             self._get_flash(uri[2:])
-        elif uri.endswith('YOUWIN.gif'):
+        elif 'scraps' in uri or 'jb2' in uri or 'scratch' in uri:
             self._get_other(uri)
         elif uri.endswith('.gif') or uri.endswith('.GIF') or uri.endswith('.jpg'):
             self._get_image(uri)
-        elif 'scraps' in uri:
-            self._get_other(uri)
         elif re.search(r'extras.*html', uri) or 'waywardvagabond' in uri:
             self._get_standalone(uri)
         else:

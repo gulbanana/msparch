@@ -40,9 +40,11 @@ class MirroringArchiver:
         self.story = storyid
         self.root = stories.dirs(self.story)[0]
 
-        self._html_template = _load_template('page.txt')
         self._object_template = _load_template('flash.txt')
         self._log_template = _load_template('pesterlog.txt')
+        self._html_template = _load_template('page.txt')
+        self._sbahj_template = _load_template('page_sbahj.txt')
+        self._scratch_template = _load_template('page_scratch.txt')
 
         _mkdir('images')
         _get_global('images/logo.gif')
@@ -136,7 +138,13 @@ class MirroringArchiver:
         content = map(self._rewrite_links, content)
         content = self._rewrite_dialogue(list(content))
 
-        html = self._html_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
+        banner = stories.scratch_banner(page)
+        if banner:
+            html = self._scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
+        elif page == '005982':
+            html = self._sbahj_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
+        else:
+            html = self._html_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
     
         with open('{0}/{1}.html'.format(self.story, page), 'w') as f:
             f.write(html)
