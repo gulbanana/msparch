@@ -46,6 +46,10 @@ class SiteReader:
 
         command, hash1, hash2, art, narration, next_pages = _separated_sections(definition.splitlines())
 
+        # disc 2
+        if page == '005643':
+            next_pages = ['005644']
+
         for line in art:
            self._get_asset(line) 
 
