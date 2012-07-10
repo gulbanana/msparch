@@ -62,7 +62,7 @@ class SiteReader:
     def _get_asset(self, uri):
         if uri.startswith('F|'):
             self._get_flash(uri[2:])
-        elif uri.endswith('YOUWIN.gif') or uri.endswith('.swf'):
+        elif uri.endswith('YOUWIN.gif') or uri.endswith('.swf') or uri.endswith('.mp3'):
             self._get_other(uri)
         elif uri.endswith('.gif') or uri.endswith('.GIF') or uri.endswith('.jpg'):
             self._get_image(uri)
@@ -116,9 +116,9 @@ class SiteReader:
         self.archiver.save_misc(filename, modhtml.encode('iso8859-1'))
 
         for img in re.findall(r'src="(.*?)"', html):
-            if re.search(r'logo', img): # site logo
+            if re.search(r'logo', img):    # site logo
                 pass
             elif re.search(r'\.\.', img):  # donation command images
-                self._get_other(img)
-            else:                       # wayward vagabond images
+                self._get_other('{0}{1}'.format(site_prefix, img[3:]))
+            else:                          # wayward vagabond images
                 self._get_other('{0}{1}'.format(uri, img))
