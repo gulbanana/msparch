@@ -9,31 +9,35 @@ import archive
 site_prefix = r'http://www.mspaintadventures.com/'
 site_logo = r'http://www.mspaintadventures.com/images/logo.gif'
 
-# parse a page's description file
-def _separated_sections(iterable):
-    sections = []
-    accumulator = []
-
-    for line in iterable:
-        # file terminator - X = one choice ? = multiple choice O = end of bard quest
-        if line == b'X' or line == b'?' or line == b'O':
-            sections.append(accumulator)
-            return sections
-
-        # section terminator
-        elif line == b'###':
-            sections.append(accumulator)
-            accumulator = []
-
-        # line within section
-        else:
-            accumulator.append(line.decode('iso8859-1'))
-
 # main reader class which pulls from the web
 class SiteReader:
     def __init__(self, storyid, archiveimpl):
         self.story = storyid
         self.archiver = archiveimpl
+        if int(storyid) < 5:
+            self.encoding = 'iso-8859-1'
+        else:
+            self.encoding = 'utf-8'
+
+    # parse a page's description file
+    def _separated_sections(self, iterable):
+        sections = []
+        accumulator = []
+
+        for line in iterable:
+            # file terminator - X = one choice ? = multiple choice O = end of bard quest
+            if line == b'X' or line == b'?' or line == b'O':
+                sections.append(accumulator)
+                return sections
+
+            # section terminator
+            elif line == b'###':
+                sections.append(accumulator)
+                accumulator = []
+
+            # line within section
+            else:
+                accumulator.append(line.decode(self.encoding))
 
     # retrieve one page
     def get_page(self, page):
@@ -44,7 +48,7 @@ class SiteReader:
             definition = urlopen(page_uri).readall()
             self.archiver.save_page(page, definition)
 
-        command, hash1, hash2, art, narration, next_pages = _separated_sections(definition.splitlines())
+        command, hash1, hash2, art, narration, next_pages = self._separated_sections(definition.splitlines())
 
         # disc 2
         if page == '005643':

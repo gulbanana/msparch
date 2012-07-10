@@ -47,6 +47,8 @@ class MirroringArchiver:
         _mkdir('images')
         _get_global('images/logo.gif')
         _get_global('images/title.png')
+        _get_global('images/v2_blankstrip.gif')
+        _get_global('images/v2_blanksquare.gif')
 
         _mkdir('{0}'.format(self.story))
         for directory in stories.dirs(self.story):
@@ -58,7 +60,7 @@ class MirroringArchiver:
         for page in pages:
             with open('{0}/{1}'.format(self.story, page), 'r') as pagefile:
                 text = pagefile.read()
-                text = re.sub(r'>((jb2_)?\d*)</a>', lambda match: '>{0}</a>'.format(self._page_command(match.group(1))), text)
+                text = re.sub(r'>((jb2_)?\d+)</a>', lambda match: '>{0}</a>'.format(self._page_command(match.group(1))), text)
 
             with open('{0}/{1}'.format(self.story, page), 'w') as pagefile:
                 pagefile.write(text)
@@ -126,7 +128,7 @@ class MirroringArchiver:
 
     ### html output ###
     def gen_html(self, page, command, assets, content, links):
-        print('>',command)
+        print('>',command.encode(sys.stdout.encoding, errors='ignore').decode(sys.stdout.encoding))
         sys.stdout.flush()
 
         images = map(self._format_asset, assets)
