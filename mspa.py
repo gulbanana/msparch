@@ -110,6 +110,8 @@ class SiteReader:
         # additional nexts
         if flashid == '03740':
             return ['005644']
+        elif flashid == '04081':
+            return ['005985']
         else:
             return []
 
