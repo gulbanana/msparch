@@ -15,10 +15,6 @@ class SiteReader:
     def __init__(self, storyid, archiveimpl):
         self.story = storyid
         self.archiver = archiveimpl
-        if int(storyid) < 5:
-            self.encoding = 'iso-8859-1'
-        else:
-            self.encoding = 'utf-8'
 
     # parse a page's description file
     def _separated_sections(self, iterable):
@@ -38,7 +34,7 @@ class SiteReader:
 
             # line within section
             else:
-                accumulator.append(line.decode(self.encoding))
+                accumulator.append(line.decode(stories.encoding(self.story)))
 
     # retrieve one page
     def get_page(self, page):
@@ -52,7 +48,7 @@ class SiteReader:
         command, hash1, hash2, art, narration, next_pages = self._separated_sections(definition.splitlines())
 
         # banner
-        room = stories.scratch_banner(int(page))
+        room = stories.scratch_banner(page)
         if room:
             self._get_asset(site_prefix+'storyfiles/hs2/scratch/'+room)
 

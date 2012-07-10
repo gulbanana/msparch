@@ -30,11 +30,21 @@ def dirs(story):
     else:
         raise Exception('story id {0} unknown'.format(story))
 
+def encoding(story):
+    if int(story) < 5:
+        return 'iso-8859-1'
+    else:
+        return 'utf-8'
+
 def _room(number):
     return 'room{0:02}.gif'.format(number)
 
 def scratch_banner(page):
-    page = int(page)
+    try:
+        page = int(page)
+    except ValueError:
+        return None
+
     if page < 5664 or page > 5981:
         return None
 

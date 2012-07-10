@@ -81,7 +81,7 @@ class MirroringArchiver:
 
     def _page_command(self, page):
         with open(os.path.join(appdir, self.story, self._page_filename(page)), 'rb') as f:
-            return f.readline().decode().strip()
+            return f.readline().decode(stories.encoding(self.story)).strip()
 
     def _page_filename(self, page):
         return '{0}.txt'.format(page)
@@ -172,6 +172,8 @@ class MirroringArchiver:
         w = 650
         if flashid == '03848':
             h = 1612
+        elif flashid == '04050':
+            h = 650
         else:
             h = 450
 
