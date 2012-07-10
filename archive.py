@@ -51,6 +51,8 @@ class MirroringArchiver:
         _get_global('images/title.png')
         _get_global('images/v2_blankstrip.gif')
         _get_global('images/v2_blanksquare.gif')
+        _get_global('images/v2_blanksquare2.gif')
+        _get_global('images/v2_blanksquare3.gif')
 
         _mkdir('{0}'.format(self.story))
         for directory in stories.dirs(self.story):
@@ -78,8 +80,8 @@ class MirroringArchiver:
         return _load_binary(self.story, self._page_filename(page))
 
     def _page_command(self, page):
-        with open(os.path.join(appdir, self.story, self._page_filename(page)), 'r') as f:
-            return f.readline().strip()
+        with open(os.path.join(appdir, self.story, self._page_filename(page)), 'rb') as f:
+            return f.readline().decode().strip()
 
     def _page_filename(self, page):
         return '{0}.txt'.format(page)
@@ -93,16 +95,16 @@ class MirroringArchiver:
 
     ### flash animations ###
     def save_flash(self, flashid, script, flash):
-        _mkdir('{0}/{1}'.format(self.root, flashid))
-    
-        with open('{0}/{1}/AC_RunActiveContent.js'.format(self.root, flashid), 'wb') as script_file:
-            script_file.write(script)
-
-        with open('{0}/{1}/{1}.swf'.format(self.root, flashid), 'wb') as flash_file:
-            flash_file.write(flash)
+        flashdir = '{0}/{1}'.format(self.root, flashid)
+        _mkdir(flashdir)
+        _save_binary(flashdir, 'AC_RunActiveContent.js', script)
+        _save_binary(flashdir, '{0}.swf'.format(flashid), flash)
 
     def flash_exists(self, flashid):
-        return os.path.exists('{0}/{1}'.format(self.root, flashid))
+        return _exists(self.root, flashid)
+
+    def load_flash(self, flashid):
+        return _load_binary('{0}/{1}'.format(self.root, flashid), '{0}.swf'.format(flashid))
 
     ### misc. assets and special cases ###
     def save_misc(self, filename, data):
@@ -138,9 +140,10 @@ class MirroringArchiver:
         content = map(self._rewrite_links, content)
         content = self._rewrite_dialogue(list(content))
 
-        banner = stories.scratch_banner(page)
-        if banner:
-            html = self._scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
+        room = stories.scratch_banner(page)
+        if room:
+            banner = self._format_banner(room)
+            html = self._scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors), banner=banner)
         elif page == '005982':
             html = self._sbahj_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
         else:
@@ -148,6 +151,9 @@ class MirroringArchiver:
     
         with open('{0}/{1}.html'.format(self.story, page), 'w') as f:
             f.write(html)
+
+    def _format_banner(self, roomfile):
+        return '../{0}/scratch/{1}'.format(self.root, roomfile)
 
     def _format_asset(self, url):
         if url.endswith('.gif') or url.endswith('.GIF'):
@@ -162,10 +168,19 @@ class MirroringArchiver:
 
     def _format_flash(self, flash_uri):
         flashid = urlparse(flash_uri).path.split('/')[-1]
+
+        w = 650
+        if flashid == '03848':
+            h = 1612
+        else:
+            h = 450
+
         return self._object_template.format(
             id='../{0}/{1}/{1}'.format(self.root,flashid), 
             swf='../{0}/{1}/{1}.swf'.format(self.root,flashid), 
-            js='../{0}/{1}/AC_RunActiveContent.js'.format(self.root,flashid))
+            js='../{0}/{1}/AC_RunActiveContent.js'.format(self.root,flashid),
+            width=str(w),
+            height=str(h))
 
     def _format_anchor(self, page):
         return '<font size="5">&gt; <a href="{0}.html">{0}</a></font><br>'.format(page)

@@ -6,7 +6,7 @@
         <!--
         body,td,th {{
             font-family: Verdana, Arial, Helvetica, sans-serif;
-            font-size: 14px;
+            font-size: 12px;
             color: #ffffff;
             margin-top: 0px;
             margin-bottom: 0px;
@@ -18,14 +18,25 @@
         </style>
     </head>
     <body link="#2cff4b" vlink="#2cff4b" alink="#2cff4b">
-	<center><table width="950" height="" cellpadding="0" cellspacing="0" border="0" bgcolor="#082a00" background="">
-            <tbody><tr>
-                <td width="950" height="100%">
-                    <table width="950" height="100%" cellpadding="0" cellspacing="0" border="0" background="">
-                        <tbody><tr>
-                            <td height="7"></td>
-                        </tr>
+	<center><table cellpadding="0" cellspacing="0" border="0">
+	    <tr>
+		<td>
+		    <center><img src="{banner}"></center>
+		</td>
+	    </tr>
+
+	    <tr>
+		<td height="16"></td>
+	    </tr>
+
+	    <tr><td>
+	<table width="941" height="" cellpadding="0" cellspacing="0" border="0" bgcolor="#082a00" background="">
+
+            <tr>
+                <td width="941" height="100%">
+                    <table width="941" height="100%" cellpadding="0" cellspacing="0" border="0" background="">
                         <tr>
+
                             <td>
                         	<center><table width="600" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#0e4603">
 
@@ -51,6 +62,9 @@
                                         </td>
                                     </tr>
 
+				    <tr>
+					<td><img src="../images/v2_blanksquare2.gif" border="0"</img></td>
+				    </tr>
 
                                     <tr>
                                         <td>
@@ -66,20 +80,22 @@
                                         </td>
                                     </tr>
 
+				    <tr>
+					<td><img src="../images/v2_blanksquare3.gif" border="0"</img></td>
+				    </tr>
 
                                     <tr>
                                         <td>
                                             <table width="600" border="0" align="center" cellpadding="0" cellspacing="0">
-                                                <tbody><tr>
+                                                <tr>
                                                     <td>
                                                         {navigation}
                                                         <br><br>
                                                     </td>
                                                 </tr>
-                                            </tbody></table>
+                                            </table>
                                         </td>
                                     </tr>
-
 
                                 </table></center>
                             </td>
@@ -89,9 +105,12 @@
                                 &nbsp;
                             </td>
                         </tr>
-                    </tbody></table> 
+                    </table> 
                 </td>
             </tr>
-        </tbody></table></center>
+
+        </table>
+	    </td></tr>
+	</table></center>
     </body>
 </html>

@@ -51,18 +51,14 @@ class SiteReader:
 
         command, hash1, hash2, art, narration, next_pages = self._separated_sections(definition.splitlines())
 
-        # disc 2
-        if page == '005643':
-            next_pages = ['005644']
-
-        # scratch banners
+        # banner
         room = stories.scratch_banner(int(page))
         if room:
             self._get_asset(site_prefix+'storyfiles/hs2/scratch/'+room)
 
         # main images
         for line in art:
-           self._get_asset(line) 
+            next_pages.extend(self._get_asset(line))
 
         # inline images
         for line in narration:
@@ -74,10 +70,10 @@ class SiteReader:
 
         return next_pages
 
-    # retrieve an non-page asset 
+    # retrieve an non-page asset. this can trigger additional page loads 
     def _get_asset(self, uri):
         if uri.startswith('F|'):
-            self._get_flash(uri[2:])
+            return self._get_flash(uri[2:])
         elif 'scraps' in uri or 'jb2' in uri or 'scratch' in uri:
             self._get_other(uri)
         elif uri.endswith('.gif') or uri.endswith('.GIF') or uri.endswith('.jpg'):
@@ -86,6 +82,7 @@ class SiteReader:
             self._get_standalone(uri)
         else:
             raise Exception('asset type {0} not supported'.format(uri))
+        return []
     
     # retrieve an image file
     def _get_image(self, uri):
@@ -107,6 +104,14 @@ class SiteReader:
             js = urlopen(uri + '/AC_RunActiveContent.js').readall()
             swf = urlopen('{0}/{1}.swf'.format(uri, flashid)).readall()
             self.archiver.save_flash(flashid, js, swf)
+        else:
+            swf = self.archiver.load_flash(flashid)
+
+        # additional nexts
+        if flashid == '03740':
+            return ['005644']
+        else:
+            return []
 
     # retrieve any type of file
     def _get_other(self, uri):

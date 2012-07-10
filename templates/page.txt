@@ -51,6 +51,9 @@
                                         </td>
                                     </tr>
 
+				    <tr>
+					<td><img src="../images/v2_blanksquare2.gif" border="0"</img></td>
+				    </tr>
 
                                     <tr>
                                         <td>
@@ -66,6 +69,9 @@
                                         </td>
                                     </tr>
 
+				    <tr>
+					<td><img src="../images/v2_blanksquare3.gif" border="0"</img></td>
+				    </tr>
 
                                     <tr>
                                         <td>

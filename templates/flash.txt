@@ -7,8 +7,8 @@
 	}} else {{
 		AC_FL_RunContent(
 			'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-			'width', '650',
-			'height', '450',
+			'width', '{width}',
+			'height', '{height}',
 			'src', '{id}',
 			'quality', 'high',
 			'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
