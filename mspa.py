@@ -39,7 +39,7 @@ class SiteReader:
     # retrieve one page
     def get_page(self, page):
         if self.archiver.page_exists(page):
-            definition = self.archiver.load_page(page)
+            definition = self.archiver.page_load(page)
         else:
             page_uri = site_prefix + '{0}/{1}.txt'.format(self.story, page)
             definition = urlopen(page_uri).readall()
@@ -53,8 +53,9 @@ class SiteReader:
             self._get_asset(site_prefix+'storyfiles/hs2/scratch/'+room)
 
         # main images
+        hidden_nexts = []
         for line in art:
-            next_pages.extend(self._get_asset(line))
+            hidden_nexts.extend(self._get_asset(line))
 
         # inline images
         for line in narration:
@@ -64,7 +65,7 @@ class SiteReader:
 
         self.archiver.gen_html(page, command[0], art, narration, next_pages)
 
-        return next_pages
+        return next_pages + hidden_nexts
 
     # retrieve an non-page asset. this can trigger additional page loads 
     def _get_asset(self, uri):
@@ -100,16 +101,9 @@ class SiteReader:
             js = urlopen(uri + '/AC_RunActiveContent.js').readall()
             swf = urlopen('{0}/{1}.swf'.format(uri, flashid)).readall()
             self.archiver.save_flash(flashid, js, swf)
-        else:
-            swf = self.archiver.load_flash(flashid)
 
         # additional nexts
-        if flashid == '03740':
-            return ['005644']
-        elif flashid == '04081':
-            return ['005985']
-        else:
-            return []
+        return self.archiver.flash_nexts(flashid)
 
     # retrieve any type of file
     def _get_other(self, uri):
@@ -123,7 +117,7 @@ class SiteReader:
     def _get_standalone(self, uri):
         filename = urlparse(uri).path[1:]
         if self.archiver.misc_exists(filename):
-            data = self.archiver.load_misc(filename)
+            data = self.archiver.misc_load(filename)
         else:
             data = urlopen(uri).readall()
 

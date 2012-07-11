@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import re
 import stories
@@ -76,7 +77,7 @@ class MirroringArchiver:
     def page_exists(self, page):
         return _exists(self.story, self._page_filename(page))
 
-    def load_page(self, page):
+    def page_load(self, page):
         return _load_binary(self.story, self._page_filename(page))
 
     def _page_command(self, page):
@@ -94,17 +95,35 @@ class MirroringArchiver:
         return _exists(self.root, image)
 
     ### flash animations ###
-    def save_flash(self, flashid, script, flash):
+    def save_flash(self, flashid, script, data):
         flashdir = '{0}/{1}'.format(self.root, flashid)
         _mkdir(flashdir)
         _save_binary(flashdir, 'AC_RunActiveContent.js', script)
-        _save_binary(flashdir, '{0}.swf'.format(flashid), flash)
+        _save_binary(flashdir, '{0}.swf'.format(flashid), data)
+        _flash_fix_links(flashid)
 
     def flash_exists(self, flashid):
         return _exists(self.root, flashid)
 
-    def load_flash(self, flashid):
+    def flash_load(self, flashid):
         return _load_binary('{0}/{1}'.format(self.root, flashid), '{0}.swf'.format(flashid))
+
+    def flash_nexts(self, flashid):
+        xml = '{0}/{1}/{1}.xml'.format(self.root, flashid)
+        nexts = []
+    
+        with open(xml, 'r') as f:
+           for line in f.readlines():
+                match = re.search(r'(\d\d\d\d\d\d).html', line)
+                if match:
+                    nexts.append(match.group(1))
+                    print(match.group(1))
+ 
+        return nexts
+
+    def _flash_fix_links(self, flashid):
+        xml = '{0}/{1}/{1}.xml'.format(self.root, flashid)
+        swf = '{0}/{1}/{1}.swf'.format(self.root, flashid)
 
     ### misc. assets and special cases ###
     def save_misc(self, filename, data):
@@ -120,7 +139,7 @@ class MirroringArchiver:
         else:
             return _exists('', filename)
 
-    def load_misc(self, filename):
+    def misc_load(self, filename):
         if filename.endswith('/'):
             return _load_binary(filename, 'index.html')
         else:
