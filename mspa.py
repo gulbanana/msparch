@@ -38,15 +38,15 @@ class SiteReader:
 
     # retrieve one page
     def get_page(self, page):
-        if page == '006009':
-            return self._get_cascade()
-
         if self.archiver.page_exists(page):
             definition = self.archiver.page_load(page)
         else:
             page_uri = site_prefix + '{0}/{1}.txt'.format(self.story, page)
             definition = urlopen(page_uri).readall()
             self.archiver.save_page(page, definition)
+
+        if page == '006009':
+            return self._get_cascade()
 
         command, hash1, hash2, art, narration, next_pages = self._separated_sections(definition.splitlines())
 
@@ -140,4 +140,16 @@ class SiteReader:
                 self._get_other('{0}{1}'.format(uri, img))
 
     def _get_cascade(self):
-        return []   # should be 006010
+        prefix = 'http://uploads.ungrounded.net/userassets/3591000/3591093/' #alternatively: site_prefix/cascade/
+        files = ['cascade_loaderExt.swf', 'cascade_segment1.swf', 'cascade_segment2.swf', 'cascade_segment3.swf', 'cascade_segment4.swf', 'cascade_segment5.swf']
+
+        self._get_other(site_prefix + 'cascade/AC_RunActiveContent.js')
+
+        for filename in filter(lambda segment: not self.archiver.cascade_exists(segment), files):
+            uri = prefix + filename
+            data = urlopen(uri).readall()
+            self.archiver.save_cascade(prefix, filename, data)
+
+        self.archiver.gen_html('006009', '[S] Cascade', [], [''], ['006010'])
+
+        return ['006010']

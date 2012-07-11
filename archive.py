@@ -46,6 +46,7 @@ class MirroringArchiver:
         self._html_template = _load_template('page.txt')
         self._sbahj_template = _load_template('page_sbahj.txt')
         self._scratch_template = _load_template('page_scratch.txt')
+        self._cascade_template = _load_template('page_cascade.txt')
 
         _mkdir('images')
         _get_global('images/logo.gif')
@@ -54,6 +55,7 @@ class MirroringArchiver:
         _get_global('images/v2_blanksquare.gif')
         _get_global('images/v2_blanksquare2.gif')
         _get_global('images/v2_blanksquare3.gif')
+        _get_global('images/header_cascade.gif')
 
         _mkdir('{0}'.format(self.story))
         for directory in stories.dirs(self.story):
@@ -69,7 +71,7 @@ class MirroringArchiver:
             with open('{0}/{1}'.format(self.story, page), 'w') as pagefile:
                 pagefile.write(text)
 
-        flashes = filter(lambda path: path.endswith('/'), os.listdir(self.root))
+        flashes = filter(lambda path: path.endswith('/'), os.listdir(self.root)) + 'cascade/'
         for flash in flashes:
             print('need to remove xml from flash', flash)
 
@@ -185,6 +187,32 @@ class MirroringArchiver:
         components = len(remote.split('/'))
         return '../' * (components-1) + 'images/logo.gif'
 
+    ### [S] Cascade segments ###
+    def save_cascade(self, prefix, filename, data):
+        _save_binary('cascade', filename, data)
+
+        self.cascade_prefix = prefix
+        swf = 'cascade/' + filename
+        xml = swf.replace('swf', 'xml')
+
+        with open(os.devnull, 'w') as null:
+            subprocess.call(['SwiXConsole.exe', 'swf2xml', swf, xml], stdout=null)
+
+        with open(xml, 'r') as f:
+            text = f.readlines()
+        text = map(self._rewrite_cascade, text)
+        with open(xml, 'w') as f:
+            f.writelines(text)
+
+        with open(os.devnull, 'w') as null:
+            subprocess.call(['SwiXConsole.exe', 'xml2swf', xml, swf], stdout=null)
+
+    def cascade_exists(self, filename):
+        return _exists('cascade', filename)
+
+    def _rewrite_cascade(self, line):
+        return re.sub(self.cascade_prefix+r'(.*)"', lambda match: '../cascade/{0}"'.format(match.group(1)), line)
+
     ### html output ###
     def gen_html(self, page, command, assets, content, links):
         print('>',command.encode(sys.stdout.encoding, errors='ignore').decode(sys.stdout.encoding))
@@ -201,6 +229,8 @@ class MirroringArchiver:
             html = self._scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors), banner=banner)
         elif page == '005982':
             html = self._sbahj_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
+        elif page == '006009':
+            html = self._cascade_template.format(assets=self._format_cascade(), navigation=''.join(anchors), banner='../images/header_cascade.gif')
         else:
             html = self._html_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
     
@@ -232,6 +262,14 @@ class MirroringArchiver:
             js='../{0}/{1}/AC_RunActiveContent.js'.format(self.root,flashid),
             width=str(w),
             height=str(h))
+
+    def _format_cascade(self):
+        return self._object_template.format(
+            id='../cascade/cascade_loaderExt',
+            swf='../cascade/cascade_loaderExt.swf',
+            js='../cascade/AC_RunActiveContent.js',
+            width='950',
+            height='650')
 
     def _format_anchor(self, page):
         return '<font size="5">&gt; <a href="{0}.html">{0}</a></font><br>'.format(page)

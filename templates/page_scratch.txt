@@ -63,7 +63,7 @@
                                     </tr>
 
 				    <tr>
-					<td><img src="../images/v2_blanksquare2.gif" border="0"</img></td>
+					<td><img src="../images/v2_blanksquare2.gif" border="0"></td>
 				    </tr>
 
                                     <tr>
@@ -81,7 +81,7 @@
                                     </tr>
 
 				    <tr>
-					<td><img src="../images/v2_blanksquare3.gif" border="0"</img></td>
+					<td><img src="../images/v2_blanksquare3.gif" border="0"></td>
 				    </tr>
 
                                     <tr>
