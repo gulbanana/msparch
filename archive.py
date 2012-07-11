@@ -61,7 +61,6 @@ class MirroringArchiver:
 
     def finalise(self):
         pages = filter(lambda path: path.endswith('.html'), os.listdir(str(self.story)))
-
         for page in pages:
             with open('{0}/{1}'.format(self.story, page), 'r') as pagefile:
                 text = pagefile.read()
@@ -69,6 +68,10 @@ class MirroringArchiver:
 
             with open('{0}/{1}'.format(self.story, page), 'w') as pagefile:
                 pagefile.write(text)
+
+        flashes = filter(lambda path: path.endswith('/'), os.listdir(self.root))
+        for flash in flashes:
+            print('need to remove xml from flash', flash)
 
     ### pages ###
     def save_page(self, page, data):
@@ -100,7 +103,7 @@ class MirroringArchiver:
         _mkdir(flashdir)
         _save_binary(flashdir, 'AC_RunActiveContent.js', script)
         _save_binary(flashdir, '{0}.swf'.format(flashid), data)
-        _flash_fix_links(flashid)
+        self._flash_fix_links(flashid)
 
     def flash_exists(self, flashid):
         return _exists(self.root, flashid)
@@ -109,21 +112,54 @@ class MirroringArchiver:
         return _load_binary('{0}/{1}'.format(self.root, flashid), '{0}.swf'.format(flashid))
 
     def flash_nexts(self, flashid):
-        xml = '{0}/{1}/{1}.xml'.format(self.root, flashid)
         nexts = []
+        xml = '{0}/{1}/{1}.xml'.format(self.root, flashid)
+        swf = '{0}/{1}/{1}.swf'.format(self.root, flashid)
     
-        with open(xml, 'r') as f:
+        if not os.path.exists(xml):
+            with open(os.devnull, 'w') as null:
+                subprocess.call(['SwiXConsole.exe', 'swf2xml', swf, xml], stdout=null)
+
+        with open(xml, 'r', encoding='utf-8') as f:
            for line in f.readlines():
                 match = re.search(r'(\d\d\d\d\d\d).html', line)
                 if match:
-                    nexts.append(match.group(1))
-                    print(match.group(1))
+                    if int(match.group(1)) >= int(stories.first_page(self.story)):
+                        nexts.append(match.group(1))
  
         return nexts
 
     def _flash_fix_links(self, flashid):
         xml = '{0}/{1}/{1}.xml'.format(self.root, flashid)
         swf = '{0}/{1}/{1}.swf'.format(self.root, flashid)
+
+        with open(os.devnull, 'w') as null:
+            subprocess.call(['SwiXConsole.exe', 'swf2xml', swf, xml], stdout=null)
+
+        with open(xml, 'r') as f:
+            text = f.readlines()
+        text = map(self._rewrite_links, text)
+        with open(xml, 'w') as f:
+            f.writelines(text)
+
+        with open(os.devnull, 'w') as null:
+            subprocess.call(['SwiXConsole.exe', 'xml2swf', xml, swf], stdout=null)
+
+    def _flash_dimensions(self, flashid):
+        xml = '{0}/{1}/{1}.xml'.format(self.root, flashid)
+        swf = '{0}/{1}/{1}.swf'.format(self.root, flashid)
+
+        if not os.path.exists(xml):
+            with open(os.devnull, 'w') as null:
+                subprocess.call(['SwiXConsole.exe', 'swf2xml', swf, xml], stdout=null)
+
+        with open(xml, 'r', encoding='utf-8') as f:
+            text = f.read()
+            match = re.search(r'Movie SwfVersion="\d+" Width="(\d+)" Height="(\d+)', text)
+            x = match.group(1)
+            y = match.group(2)
+
+        return [x, y]
 
     ### misc. assets and special cases ###
     def save_misc(self, filename, data):
@@ -188,13 +224,7 @@ class MirroringArchiver:
     def _format_flash(self, flash_uri):
         flashid = urlparse(flash_uri).path.split('/')[-1]
 
-        w = 650
-        if flashid == '03848':
-            h = 1612
-        elif flashid == '04050':
-            h = 650
-        else:
-            h = 450
+        w, h = self._flash_dimensions(flashid)
 
         return self._object_template.format(
             id='../{0}/{1}/{1}'.format(self.root,flashid), 
@@ -225,6 +255,7 @@ class MirroringArchiver:
         return '{0}index.html'.format(vagabond)
 
     def _rewrite_links(self, text):
+        text = re.sub(site_prefix+r'scratch\.php\?s=(\d*)(&amp;p=(\d*))?', self._format_internal_page, text)
         text = re.sub(site_prefix+r'\?s=(\d*)(&amp;p=(\d*))?', self._format_internal_page, text)
         text = re.sub(site_prefix+r'(.*)"', self._format_internal_asset, text)
         text = re.sub(r'waywardvagabond/(.*?)/', self._format_wv, text)

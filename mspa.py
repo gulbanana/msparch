@@ -38,6 +38,9 @@ class SiteReader:
 
     # retrieve one page
     def get_page(self, page):
+        if page == '006009':
+            return self._get_cascade()
+
         if self.archiver.page_exists(page):
             definition = self.archiver.page_load(page)
         else:
@@ -65,7 +68,7 @@ class SiteReader:
 
         self.archiver.gen_html(page, command[0], art, narration, next_pages)
 
-        return next_pages + hidden_nexts
+        return map(lambda s: s.strip(), next_pages + hidden_nexts)
 
     # retrieve an non-page asset. this can trigger additional page loads 
     def _get_asset(self, uri):
@@ -135,3 +138,6 @@ class SiteReader:
                 self._get_other('{0}{1}'.format(site_prefix, img[3:]))
             else:                          # wayward vagabond images
                 self._get_other('{0}{1}'.format(uri, img))
+
+    def _get_cascade(self):
+        return []   # should be 006010
