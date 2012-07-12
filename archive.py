@@ -5,10 +5,13 @@ import re
 import stories
 from urllib.request import urlretrieve
 from urllib.parse import urlparse
+from asq.initiators import query
 
 #constants
 site_prefix = 'http://www.mspaintadventures.com/'
 appdir = os.path.dirname(sys.argv[0])
+archdir = '.'
+swix = os.path.join(appdir, 'SwiXConsole.exe')
 
 #filesystem helpers
 def _load_template(filename):
@@ -16,24 +19,24 @@ def _load_template(filename):
         return template_file.read()
 
 def _load_binary(directory, filename):
-    with open(os.path.join(appdir, directory, filename), 'rb') as f:
+    with open(os.path.join(archdir, directory, filename), 'rb') as f:
         return f.read()
 
 def _save_binary(directory, filename, data):
     filename = os.path.join(*filename.split('/'))
-    with open(os.path.join(appdir, directory, filename), 'wb') as f:
+    with open(os.path.join(archdir, directory, filename), 'wb') as f:
         f.write(data)
 
 def _exists(directory, filename):
-    return os.path.exists(os.path.join(appdir, directory, filename))
+    return os.path.exists(os.path.join(archdir, directory, filename))
 
 def _get_global(filename):
-    path = os.path.join(appdir, filename)
+    path = os.path.join(archdir, filename)
     if not os.path.exists(path):
         urlretrieve(site_prefix+filename, path)
 
 def _mkdir(directory):
-    os.makedirs(os.path.join(appdir, directory), exist_ok=True)
+    os.makedirs(os.path.join(archdir, directory), exist_ok=True)
 
 # archiver which maintains a layout like that of mspa.com
 class MirroringArchiver:
@@ -72,9 +75,16 @@ class MirroringArchiver:
             with open('{0}/{1}'.format(self.story, page), 'w') as pagefile:
                 pagefile.write(text)
 
-        flashes = filter(lambda path: path.endswith('/'), os.listdir(self.root)) + 'cascade/'
-        for flash in flashes:
-            print('need to remove xml from flash', flash)
+        flashes = ['cascade']
+        flashes.extend(
+            query(os.listdir(self.root))
+            .where(lambda path: re.match(r'\d\d\d\d\d', path))
+            .select(lambda x: self.root + '/' + x)
+        )
+
+        for flashdir in flashes:
+            for xml in filter(lambda file: file.endswith('.xml'), os.listdir(flashdir)):
+                os.remove(flashdir + '/' + xml)
 
     ### pages ###
     def save_page(self, page, data):
@@ -87,7 +97,7 @@ class MirroringArchiver:
         return _load_binary(self.story, self._page_filename(page))
 
     def _page_command(self, page):
-        with open(os.path.join(appdir, self.story, self._page_filename(page)), 'rb') as f:
+        with open(os.path.join(archdir, self.story, self._page_filename(page)), 'rb') as f:
             return f.readline().decode(stories.encoding(self.story)).strip()
 
     def _page_filename(self, page):
@@ -121,7 +131,7 @@ class MirroringArchiver:
     
         if not os.path.exists(xml):
             with open(os.devnull, 'w') as null:
-                subprocess.call(['SwiXConsole.exe', 'swf2xml', swf, xml], stdout=null)
+                subprocess.call([swix, 'swf2xml', swf, xml], stdout=null)
 
         with open(xml, 'r', encoding='utf-8') as f:
            for line in f.readlines():
@@ -137,7 +147,7 @@ class MirroringArchiver:
         swf = '{0}/{1}/{1}.swf'.format(self.root, flashid)
 
         with open(os.devnull, 'w') as null:
-            subprocess.call(['SwiXConsole.exe', 'swf2xml', swf, xml], stdout=null)
+            subprocess.call([swix, 'swf2xml', swf, xml], stdout=null)
 
         with open(xml, 'r') as f:
             text = f.readlines()
@@ -146,7 +156,7 @@ class MirroringArchiver:
             f.writelines(text)
 
         with open(os.devnull, 'w') as null:
-            subprocess.call(['SwiXConsole.exe', 'xml2swf', xml, swf], stdout=null)
+            subprocess.call([swix, 'xml2swf', xml, swf], stdout=null)
 
     def _flash_dimensions(self, flashid):
         xml = '{0}/{1}/{1}.xml'.format(self.root, flashid)
@@ -154,7 +164,7 @@ class MirroringArchiver:
 
         if not os.path.exists(xml):
             with open(os.devnull, 'w') as null:
-                subprocess.call(['SwiXConsole.exe', 'swf2xml', swf, xml], stdout=null)
+                subprocess.call([swix, 'swf2xml', swf, xml], stdout=null)
 
         with open(xml, 'r', encoding='utf-8') as f:
             text = f.read()
@@ -197,7 +207,7 @@ class MirroringArchiver:
         xml = swf.replace('swf', 'xml')
 
         with open(os.devnull, 'w') as null:
-            subprocess.call(['SwiXConsole.exe', 'swf2xml', swf, xml], stdout=null)
+            subprocess.call([swix, 'swf2xml', swf, xml], stdout=null)
 
         with open(xml, 'r') as f:
             text = f.readlines()
@@ -206,7 +216,7 @@ class MirroringArchiver:
             f.writelines(text)
 
         with open(os.devnull, 'w') as null:
-            subprocess.call(['SwiXConsole.exe', 'xml2swf', xml, swf], stdout=null)
+            subprocess.call([swix, 'xml2swf', xml, swf], stdout=null)
 
     def cascade_exists(self, filename):
         return _exists('cascade', filename)
