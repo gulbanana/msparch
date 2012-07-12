@@ -8,13 +8,13 @@ import stories
 
 #parse args
 cmdline = argparse.ArgumentParser(description='Download MS Paint Adventures stories in an archival format.', add_help=True)
-arguments = cmdline.add_argument_group('arguments')
+arguments = cmdline.add_argument_group('positional arguments')
 arguments.add_argument('story', default='6', nargs='?', type=str, choices=['1','2','4','5','6','ryanquest'],
                        help='Story to download. Default 6 for Homestuck')
-arguments.add_argument('-p','--page', type=int, default=0, nargs='?', 
-                       help='Page on which to start download. Default story start')
-arguments.add_argument('-d','--directory', type=str, default='MSPA', nargs='?', \
-                       help='Location for downloaded files. Default MSPA/')
+cmdline.add_argument('-p','--page', type=int, default=0, nargs='?', 
+                     help='Page on which to start download. Default story start')
+cmdline.add_argument('-d','--directory', type=str, default='MSPA', nargs='?', \
+                     help='Location for downloaded files. Default MSPA/')
 
 args = cmdline.parse_args()
 

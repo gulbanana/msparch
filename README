@@ -1,22 +1,20 @@
 Usage
 -----
-
 python main.py [-h] [-p [PAGE]] [-d [DIRECTORY]] [{1,2,4,5,6,ryanquest}]
 
 Download MS Paint Adventures stories in an archival format.
 
 optional arguments:
   -h, --help            show this help message and exit
-
-arguments:
-  {1,2,4,5,6,ryanquest}
-                        Story to download. Default 6 for Homestuck
   -p [PAGE], --page [PAGE]
                         Page on which to start download. Default story start
   -d [DIRECTORY], --directory [DIRECTORY]
                         Location for downloaded files. Default MSPA/
 
+positional arguments:
+  {1,2,4,5,6,ryanquest}
+                        Story to download. Default 6 for Homestuck
+
 Requirements
 ------------
-
 msparch requires Python 3 and a working swfmill binary. Copies of swfmill are included for Windows and Mac OS; for Linux you'll have to get your own. 
