@@ -33,7 +33,7 @@ def dirs(story):
         raise Exception('story id {0} unknown'.format(story))
 
 def encoding(story):
-    if int(story) < 5:
+    if story == 'ryanquest' or int(story) < 5:
         return 'iso-8859-1'
     else:
         return 'utf-8'
