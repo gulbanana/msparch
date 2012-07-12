@@ -1,3 +1,5 @@
+from itertools import repeat
+
 def first_page(story):
     if story == '1':
         return 2
@@ -36,21 +38,38 @@ def encoding(story):
     else:
         return 'utf-8'
 
+_alt_texts = []
+_alt_texts.extend(repeat('', 92))
+_alt_texts.extend([
+    "BOOYEAH", 
+    "... the FUCK?",
+    "Oh hell no. He's talking about ancestors, isn't he.",
+    "He's keeping little girls locked up in weird rooms, and rambling about troll ancestors. I just know it.",
+    "NOT IN MY FUCKING COMIC.",
+    "Oh, damn. This place is bigger than I thought. Any idea which way he went? Come on guys, help me out.",
+    "I bet he's behind this door. YOU HEAR ME SCRATCH, THE JIG IS UP.", 
+    "Ah-ha! Caught red handed, you bastard. You stop clogging up my story with your troll fanfiction this instaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH"
+])
+
 def _room(number):
-    return 'room{0:02}.gif'.format(number)
+    room = 'room{0:02}.gif'.format(number)
+    alt_text = _alt_texts[number]
+    alt_img = None
+
+    return (room, alt_text, alt_img)
 
 def scratch_banner(page):
     try:
         page = int(page)
     except ValueError:
-        return None
+        return (None, None, None)
 
     if page < 5664 or page > 5981:
-        return None
+        return (None, None, None)
 
     # initial static room
     elif page < 5697:
-        return 'room.gif'
+        return ('room.gif', '', None)
 
     # first linear sequence
     elif page >= 5697 and page <= 5774:

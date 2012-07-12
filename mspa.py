@@ -51,7 +51,7 @@ class SiteReader:
         command, hash1, hash2, art, narration, next_pages = self._separated_sections(definition.splitlines())
 
         # banner
-        room = stories.scratch_banner(page)
+        room, _, alt = stories.scratch_banner(page)
         if room:
             self._get_asset(site_prefix+'storyfiles/hs2/scratch/'+room)
 
@@ -99,6 +99,9 @@ class SiteReader:
     # retrieve a flash animation
     def _get_flash(self, uri):
         flashid = urlparse(uri).path.split('/')[-1]
+
+        if flashid == '04812':
+            uri = 'http://www.mspaintadventures.com/DOTA'
 
         if not self.archiver.flash_exists(flashid):
             js = urlopen(uri + '/AC_RunActiveContent.js').readall()

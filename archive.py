@@ -47,6 +47,7 @@ class MirroringArchiver:
         self._sbahj_template = _load_template('page_sbahj.txt')
         self._scratch_template = _load_template('page_scratch.txt')
         self._cascade_template = _load_template('page_cascade.txt')
+        self._dota_template = _load_template('page_dota.txt')
 
         _mkdir('images')
         _get_global('images/logo.gif')
@@ -223,14 +224,16 @@ class MirroringArchiver:
         content = map(self._rewrite_links, content)
         content = self._rewrite_dialogue(list(content))
 
-        room = stories.scratch_banner(page)
+        room, alt, _ = stories.scratch_banner(page)
         if room:
             banner = self._format_banner(room)
-            html = self._scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors), banner=banner)
+            html = self._scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors), banner=banner, alt_text=alt)
         elif page == '005982':
             html = self._sbahj_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
         elif page == '006009':
             html = self._cascade_template.format(assets=self._format_cascade(), navigation=''.join(anchors), banner='../images/header_cascade.gif')
+        elif page == '006715':
+            html = self._dota_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
         else:
             html = self._html_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
     
