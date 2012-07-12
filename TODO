@@ -1,2 +1,4 @@
 [S] YOU THERE. BOY. is broken. alterniabound too, but not all of the walkarounds??
-    storyfiles/hs2/00253/00253.swf doesn't work standalone.. maybe walkarounds have special requirements 
+    storyfiles/hs2/00253/00253.swf doesn't work alone in browser.. maybe there are external assets? investigate.
+it'd be nice to have html files all generated at the root, with index pages
+dynamic viewer?

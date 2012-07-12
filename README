@@ -1,7 +1,7 @@
 Usage
 -----
 
-main.py [-h] [-p [PAGE]] [-d [DIRECTORY]] [{1,2,4,5,6,ryanquest}]
+python main.py [-h] [-p [PAGE]] [-d [DIRECTORY]] [{1,2,4,5,6,ryanquest}]
 
 Download MS Paint Adventures stories in an archival format.
 
@@ -15,3 +15,8 @@ arguments:
                         Page on which to start download. Default story start
   -d [DIRECTORY], --directory [DIRECTORY]
                         Location for downloaded files. Default MSPA/
+
+Requirements
+------------
+
+msparch requires Python 3 and a working swfmill binary. Copies of swfmill are included for Windows and Mac OS; for Linux you'll have to get your own. 
