@@ -59,7 +59,9 @@ def finalise():
         with open('{0}/{1}/{2}'.format(archdir, story, page), 'w') as pagefile:
             pagefile.write(text)
 
-    flashes = [os.path.join(archdir, root, path) for path in os.listdir(os.path.join(archdir, root)) if re.match(r'\d\d\d\d\d$', path)] + [os.path.join(archdir,'cascade')]
+    flashes = [os.path.join(archdir, root, path) for path in os.listdir(os.path.join(archdir, root)) if re.match(r'\d\d\d\d\d$', path)]
+    if os.path.exists(os.path.join(archdir,'cascade')):
+        flashes += [os.path.join(archdir,'cascade')]
 
     for flashdir in flashes:
         for xml in filter(lambda file: file.endswith('.xml'), os.listdir(flashdir)):
