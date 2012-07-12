@@ -5,7 +5,6 @@ import re
 import stories
 from urllib.request import urlretrieve
 from urllib.parse import urlparse
-from asq.initiators import query
 
 #constants
 site_prefix = 'http://www.mspaintadventures.com/'
@@ -78,12 +77,7 @@ class MirroringArchiver:
             with open('{0}/{1}'.format(self.story, page), 'w') as pagefile:
                 pagefile.write(text)
 
-        flashes = ['cascade']
-        flashes.extend(
-            query(os.listdir(self.root))
-            .where(lambda path: re.match(r'\d\d\d\d\d$', path))
-            .select(lambda x: self.root + '/' + x)
-        )
+        flashes = [self.root+'/'+path for path in os.listdir(self.root) if re.match(r'\d\d\d\d\d$', path)] + ['cascade']
 
         for flashdir in flashes:
             for xml in filter(lambda file: file.endswith('.xml'), os.listdir(flashdir)):

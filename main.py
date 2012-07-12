@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from collections import deque
-from asq.initiators import query
 import argparse
 import mspa
 import archive
@@ -22,6 +21,6 @@ downloader = mspa.SiteReader(args.story, archiver)
 pages = ['{0:06}'.format(args.page)]
 for page in pages:
     next_pages = downloader.get_page(page)
-    pages.extend(query(next_pages).difference(pages))
+    pages.extend([p for p in next_pages if p not in set(pages)])
 
 archiver.finalise()

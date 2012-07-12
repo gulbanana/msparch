@@ -1,7 +1,6 @@
 from urllib.request import urlopen
 from urllib.parse import urlparse
 from itertools import *
-from asq.initiators import query
 import re
 import archive
 import stories
