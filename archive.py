@@ -81,7 +81,7 @@ class MirroringArchiver:
         flashes = ['cascade']
         flashes.extend(
             query(os.listdir(self.root))
-            .where(lambda path: re.match(r'\d\d\d\d\d', path))
+            .where(lambda path: re.match(r'\d\d\d\d\d$', path))
             .select(lambda x: self.root + '/' + x)
         )
 
