@@ -21,12 +21,12 @@ args = cmdline.parse_args()
 if args.page == 0:
     args.page = stories.first_page(args.story)
 
-archiver = archive.MirroringArchiver(args.story, args.directory)
-downloader = mspa.SiteReader(args.story, archiver)
+archive.init(args.story, args.directory)
+downloader = mspa.SiteReader(args.story)
 
 pages = ['{0:06}'.format(args.page)]
 for page in pages:
     next_pages = downloader.get_page(page)
     pages.extend([p for p in next_pages if p not in set(pages)])
 
-archiver.finalise()
+archive.finalise()

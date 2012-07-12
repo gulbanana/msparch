@@ -11,9 +11,8 @@ site_logo = r'http://www.mspaintadventures.com/images/logo.gif'
 
 # main reader class which pulls from the web
 class SiteReader:
-    def __init__(self, storyid, archiveimpl):
+    def __init__(self, storyid):
         self.story = storyid
-        self.archiver = archiveimpl
 
     # parse a page's description file
     def _separated_sections(self, iterable):
@@ -37,12 +36,12 @@ class SiteReader:
 
     # retrieve one page
     def get_page(self, page):
-        if self.archiver.page_exists(page):
-            definition = self.archiver.page_load(page)
+        if archive.page_exists(page):
+            definition = archive.page_load(page)
         else:
             page_uri = site_prefix + '{0}/{1}.txt'.format(self.story, page)
             definition = urlopen(page_uri).readall()
-            self.archiver.save_page(page, definition)
+            archive.save_page(page, definition)
 
         if page == '006009':
             return self._get_cascade()
@@ -67,7 +66,7 @@ class SiteReader:
                 if not 'sweetbroandhellajeff' in match:
                     self._get_asset(site_prefix+match)
 
-        self.archiver.gen_html(page, command[0], art, narration, next_pages)
+        archive.gen_html(page, command[0], art, narration, next_pages)
 
         return map(lambda s: s.strip(), next_pages + hidden_nexts)
 
@@ -93,9 +92,9 @@ class SiteReader:
         else:
             filename = urlparse(uri).path.split('/')[-1]
 
-        if not self.archiver.image_exists(filename):
+        if not archive.image_exists(filename):
             data = urlopen(uri).readall()
-            self.archiver.save_image(filename, data)
+            archive.save_image(filename, data)
 
     # retrieve a flash animation
     def _get_flash(self, uri):
@@ -104,36 +103,36 @@ class SiteReader:
         if flashid == '04812':
             uri = 'http://www.mspaintadventures.com/DOTA'
 
-        if not self.archiver.flash_exists(flashid):
+        if not archive.flash_exists(flashid):
             js = urlopen(uri + '/AC_RunActiveContent.js').readall()
             swf = urlopen('{0}/{1}.swf'.format(uri, flashid)).readall()
-            self.archiver.save_flash(flashid, js, swf)
+            archive.save_flash(flashid, js, swf)
 
         # additional nexts
-        return self.archiver.flash_nexts(flashid)
+        return archive.flash_nexts(flashid)
 
     # retrieve any type of file
     def _get_other(self, uri):
         filename = urlparse(uri).path[1:]
 
-        if not self.archiver.misc_exists(filename):
+        if not archive.misc_exists(filename):
             data = urlopen(uri).readall()
-            self.archiver.save_misc(filename, data)
+            archive.save_misc(filename, data)
 
     # retrieve an independent page with its own images and html
     def _get_standalone(self, uri):
         filename = urlparse(uri).path[1:]
-        if self.archiver.misc_exists(filename):
-            data = self.archiver.misc_load(filename)
+        if archive.misc_exists(filename):
+            data = archive.misc_load(filename)
         else:
             data = urlopen(uri).readall()
 
         html = data.decode('iso8859-1')
 
-        modhtml = re.sub(site_logo, self.archiver.logo_path(filename), html)
+        modhtml = re.sub(site_logo, archive.logo_path(filename), html)
         modhtml = re.sub(r'src="{0}(.*?)"'.format(site_prefix), r'src="../\1"', modhtml)
         
-        self.archiver.save_misc(filename, modhtml.encode('iso8859-1'))
+        archive.save_misc(filename, modhtml.encode('iso8859-1'))
 
         for img in re.findall(r'src="(.*?)"', html):
             if 'logo' in img:    # site logo
@@ -149,11 +148,11 @@ class SiteReader:
 
         self._get_other(site_prefix + 'cascade/AC_RunActiveContent.js')
 
-        for filename in filter(lambda segment: not self.archiver.cascade_exists(segment), files):
+        for filename in filter(lambda segment: not archive.cascade_exists(segment), files):
             uri = prefix + filename
             data = urlopen(uri).readall()
-            self.archiver.save_cascade(prefix, filename, data)
+            archive.save_cascade(prefix, filename, data)
 
-        self.archiver.gen_html('006009', '[S] Cascade', [], [''], ['006010'])
+        archive.gen_html('006009', '[S] Cascade', [], [''], ['006010'])
 
         return ['006010']
