@@ -60,6 +60,9 @@ class MirroringArchiver:
         _get_global('images/v2_blanksquare2.gif')
         _get_global('images/v2_blanksquare3.gif')
         _get_global('images/header_cascade.gif')
+        _get_global('jquery.min.js')
+        _get_global('ddimgtooltip.css')
+        _get_global('ddimgtooltip.js')
 
         _mkdir('{0}'.format(self.story))
         for directory in stories.dirs(self.story):
@@ -234,10 +237,11 @@ class MirroringArchiver:
         content = map(self._rewrite_links, content)
         content = self._rewrite_dialogue(list(content))
 
-        room, alt, _ = stories.scratch_banner(page)
+        room, alt, img = stories.scratch_banner(page)
         if room:
             banner = self._format_banner(room)
-            html = self._scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors), banner=banner, alt_text=alt)
+            html = self._scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors),
+                                                 banner=banner, alt_text=alt, alt_img='imgtip[{0}]'.format(img))
         elif page == '005982':
             html = self._sbahj_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
         elif page == '006009':

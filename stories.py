@@ -48,13 +48,30 @@ _alt_texts.extend([
     "NOT IN MY FUCKING COMIC.",
     "Oh, damn. This place is bigger than I thought. Any idea which way he went? Come on guys, help me out.",
     "I bet he's behind this door. YOU HEAR ME SCRATCH, THE JIG IS UP.", 
-    "Ah-ha! Caught red handed, you bastard. You stop clogging up my story with your troll fanfiction this instaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH"
+    "Ah-ha! Caught red handed, you bastard. You stop clogging up my story with your troll fanfiction this instaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH",
+    "That was not the right door.",
+    "This looks like the right place. The hallway is all round and shit. Just like his big stupid head.",
+    "MY BEAUTIFUL PANELS WHAT HAS HE DONE. That son of a bitch. It's going to take so many sweeps to clean this mess up. So very, very many sweeps.",
+    "God dammit, he's got a bowl full of these things?? He's pulling his snooty horseshit candy bowl stunts to mock my little arrows now. Excellent host my ass.",
+    "RAAARARRAAUUUAAAAUUAGHGHGGHGGGGHHGH! *flip*",
+    "Oh my god how can these possibly be so delicious???",
+    "Whoa, better go easy on these. Might need some later.",
+    "There you are. Go ahead, keep talking cueball. I've got you in the crosshairs of my broombristles. I have GOT you you pompous motherfucker.",
+    "Tick. Tock. Tick. Tock. Tick. Tock. My heartbeat falls in rhythm with the clock as I draw close to my prey. I leave nothing to chance, for you see it is the most dangerous prey of all, a four foot tall asshole in suspenders who won't shut up. Wait for it, Hussie. Wait for it...",
+    "RAAARARRAAUUUAAAAUUAGHGHGGHGGGGHHGH! *trip*",
+    "bap bap bap bap bap bap bap bap bap bap bap bap bap bap bap bap bap bap bap bap bap bap bap",
+    "Everybody is fed up with your condescending, self indulgent narrative style. They want to go back to my slightly less condescending, slightly more self indulgent style."
 ])
 
 def _room(number):
     room = 'room{0:02}.gif'.format(number)
-    alt_text = _alt_texts[number]
-    alt_img = None
+
+    if number < 112:
+        alt_text = _alt_texts[number]
+        alt_img = None
+    else:
+        alt_text = ''
+        alt_img = number - 112
 
     return (room, alt_text, alt_img)
 

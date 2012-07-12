@@ -16,12 +16,17 @@
         }}
         -->
         </style>
+
+	<script type="text/javascript" src="../jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../ddimgtooltip.css" />
+	<script type="text/javascript" src="../ddimgtooltip.js"></script>
+
     </head>
     <body link="#2cff4b" vlink="#2cff4b" alink="#2cff4b">
 	<center><table cellpadding="0" cellspacing="0" border="0">
 	    <tr>
 		<td>
-		    <center><img src="{banner}" border="0" title="{alt_text}"></center>
+		    <center><img src="{banner}" border="0" title="{alt_text}" rel="{alt_img}"></center>
 		</td>
 	    </tr>
 

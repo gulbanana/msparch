@@ -51,9 +51,11 @@ class SiteReader:
         command, hash1, hash2, art, narration, next_pages = self._separated_sections(definition.splitlines())
 
         # banner
-        room, _, alt = stories.scratch_banner(page)
+        room, alt, img = stories.scratch_banner(page)
         if room:
             self._get_asset(site_prefix+'storyfiles/hs2/scratch/'+room)
+        if img:
+            self._get_other(site_prefix+'storyfiles/hs2/scraps/LEtext{0}.gif'.format(img+1))
 
         # main images
         hidden_nexts = []
