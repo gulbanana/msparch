@@ -9,63 +9,38 @@ from urllib.parse import urlparse
 #constants
 site_prefix = 'http://www.mspaintadventures.com/'
 appdir = os.path.dirname(sys.argv[0])
-archdir = '.'
 swix = os.path.join(appdir, 'SwiXConsole.exe')
-
-#filesystem helpers
-def _load_template(filename):
-    with open(os.path.join(appdir, 'templates', filename), 'r') as template_file:
-        return template_file.read()
-
-def _load_binary(directory, filename):
-    with open(os.path.join(archdir, directory, filename), 'rb') as f:
-        return f.read()
-
-def _save_binary(directory, filename, data):
-    filename = os.path.join(*filename.split('/'))
-    with open(os.path.join(archdir, directory, filename), 'wb') as f:
-        f.write(data)
-
-def _exists(directory, filename):
-    return os.path.exists(os.path.join(archdir, directory, filename))
-
-def _get_global(filename):
-    path = os.path.join(archdir, filename)
-    if not os.path.exists(path):
-        urlretrieve(site_prefix+filename, path)
-
-def _mkdir(directory):
-    os.makedirs(os.path.join(archdir, directory), exist_ok=True)
 
 # archiver which maintains a layout like that of mspa.com
 class MirroringArchiver:
-    def __init__(self, storyid):
+    def __init__(self, storyid, storyloc):
         self.story = storyid
         self.root = stories.dirs(self.story)[0]
+        self.archdir = storyloc
 
-        self._object_template = _load_template('flash.txt')
-        self._log_template = _load_template('pesterlog.txt')
-        self._html_template = _load_template('page.txt')
-        self._sbahj_template = _load_template('page_sbahj.txt')
-        self._scratch_template = _load_template('page_scratch.txt')
-        self._cascade_template = _load_template('page_cascade.txt')
-        self._dota_template = _load_template('page_dota.txt')
+        self._object_template = self._load_template('flash.txt')
+        self._log_template = self._load_template('pesterlog.txt')
+        self._html_template = self._load_template('page.txt')
+        self._sbahj_template = self._load_template('page_sbahj.txt')
+        self._scratch_template = self._load_template('page_scratch.txt')
+        self._cascade_template = self._load_template('page_cascade.txt')
+        self._dota_template = self._load_template('page_dota.txt')
 
-        _mkdir('images')
-        _get_global('images/logo.gif')
-        _get_global('images/title.png')
-        _get_global('images/v2_blankstrip.gif')
-        _get_global('images/v2_blanksquare.gif')
-        _get_global('images/v2_blanksquare2.gif')
-        _get_global('images/v2_blanksquare3.gif')
-        _get_global('images/header_cascade.gif')
-        _get_global('jquery.min.js')
-        _get_global('ddimgtooltip.css')
-        _get_global('ddimgtooltip.js')
+        self._mkdir('images')
+        self._get_global('images/logo.gif')
+        self._get_global('images/title.png')
+        self._get_global('images/v2_blankstrip.gif')
+        self._get_global('images/v2_blanksquare.gif')
+        self._get_global('images/v2_blanksquare2.gif')
+        self._get_global('images/v2_blanksquare3.gif')
+        self._get_global('images/header_cascade.gif')
+        self._get_global('jquery.min.js')
+        self._get_global('ddimgtooltip.css')
+        self._get_global('ddimgtooltip.js')
 
-        _mkdir('{0}'.format(self.story))
+        self._mkdir('{0}'.format(self.story))
         for directory in stories.dirs(self.story):
-            _mkdir(directory)
+            self._mkdir(directory)
 
     def finalise(self):
         pages = filter(lambda path: path.endswith('.html'), os.listdir(str(self.story)))
@@ -83,18 +58,43 @@ class MirroringArchiver:
             for xml in filter(lambda file: file.endswith('.xml'), os.listdir(flashdir)):
                 os.remove(flashdir + '/' + xml)
 
+    #filesystem helpers
+    def _load_template(self, filename):
+        with open(os.path.join(appdir, 'templates', filename), 'r') as template_file:
+            return template_file.read()
+
+    def _load_binary(self, directory, filename):
+        with open(os.path.join(self.archdir, directory, filename), 'rb') as f:
+            return f.read()
+
+    def _save_binary(self, directory, filename, data):
+        filename = os.path.join(*filename.split('/'))
+        with open(os.path.join(self.archdir, directory, filename), 'wb') as f:
+            f.write(data)
+
+    def _exists(self, directory, filename):
+        return os.path.exists(os.path.join(self.archdir, directory, filename))
+
+    def _get_global(self, filename):
+        path = os.path.join(self.archdir, filename)
+        if not os.path.exists(path):
+            urlretrieve(site_prefix+filename, path)
+
+    def _mkdir(self, directory):
+        os.makedirs(os.path.join(self.archdir, directory), exist_ok=True)
+
     ### pages ###
     def save_page(self, page, data):
-        _save_binary(self.story, self._page_filename(page), data)
+        self._save_binary(self.story, self._page_filename(page), data)
 
     def page_exists(self, page):
-        return _exists(self.story, self._page_filename(page))
+        return self._exists(self.story, self._page_filename(page))
 
     def page_load(self, page):
-        return _load_binary(self.story, self._page_filename(page))
+        return self._load_binary(self.story, self._page_filename(page))
 
     def _page_command(self, page):
-        with open(os.path.join(archdir, self.story, self._page_filename(page)), 'rb') as f:
+        with open(os.path.join(self.archdir, self.story, self._page_filename(page)), 'rb') as f:
             return f.readline().decode(stories.encoding(self.story)).strip()
 
     def _page_filename(self, page):

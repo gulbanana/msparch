@@ -1,4 +1,17 @@
 Usage
 -----
 
-    ./main.py storyid [pageid]
+main.py [-h] [-p [PAGE]] [-d [DIRECTORY]] [{1,2,4,5,6,ryanquest}]
+
+Download MS Paint Adventures stories in an archival format.
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+arguments:
+  {1,2,4,5,6,ryanquest}
+                        Story to download. Default 6 for Homestuck
+  -p [PAGE], --page [PAGE]
+                        Page on which to start download. Default story start
+  -d [DIRECTORY], --directory [DIRECTORY]
+                        Location for downloaded files. Default MSPA/
