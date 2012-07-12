@@ -1,10 +1,11 @@
-import os
+from urllib.request import urlretrieve
+from urllib.parse import urlparse
 import subprocess
+import platform
+import os
 import sys
 import re
 import stories
-from urllib.request import urlretrieve
-from urllib.parse import urlparse
 
 ### constants ###
 site_prefix = 'http://www.mspaintadventures.com/'
@@ -16,7 +17,12 @@ def init(storyid, storyloc):
     root = stories.dirs(story)[0]
     archdir = storyloc
     appdir = os.path.dirname(sys.argv[0])
-    swix = os.path.join(appdir, 'SwiXConsole.exe')
+
+    if platform.system() == 'Windows':
+        swix = os.path.join(appdir, 'swfmill.exe')
+    else:
+        swix = os.path.join(appdir, 'swfmill')
+        
 
     global _object_template, _log_template, _html_template, _sbahj_template, _scratch_template, _cascade_template, _dota_template
     _object_template = _load_template('flash.txt')
@@ -165,10 +171,10 @@ def _flash_dimensions(flashid):
             subprocess.call([swix, 'swf2xml', swf, xml], stdout=null)
 
     with open(xml, 'r', encoding='utf-8') as f:
-        text = f.read()
-        match = re.search(r'Movie SwfVersion="\d+" Width="(\d+)" Height="(\d+)', text)
-        x = match.group(1)
-        y = match.group(2)
+        text = f.read(500)
+        match = re.search(r'Rectangle left="0" right="(\d+)" top="0" bottom="(\d+)"', text)
+        x = int(match.group(1)) / 20
+        y = int(match.group(2)) / 20
 
     return [x, y]
 
