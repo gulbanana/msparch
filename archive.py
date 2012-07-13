@@ -224,7 +224,7 @@ def save_cascade(prefix, filename, data):
     def _rewrite_cascade(line):
         return re.sub(cascade_prefix+r'(.*)"', lambda match: '../cascade/{0}"'.format(match.group(1)), line)
 
-    swf = 'cascade/' + filename
+    swf = os.path.join(archdir, 'cascade', filename)
     xml = swf.replace('swf', 'xml')
 
     with open(os.devnull, 'w') as null:
