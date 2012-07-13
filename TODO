@@ -1,4 +1,15 @@
-[S] YOU THERE. BOY. is broken. alterniabound too, but not all of the walkarounds??
-    storyfiles/hs2/00253/00253.swf doesn't work alone in browser.. maybe there are external assets? investigate.
-it'd be nice to have html files all generated at the root, with index pages
-dynamic viewer?
+walkaround status:
+    [S] YOU THERE. BOY.		    002153 / 00253
+	works ONLY if run through swfmill
+    [S] ACT 4 ==>		    003258 / 01358
+	works
+    [S] Past Karkat: Wake up.	    004692 / 02791   
+	breaks if swfmilled. otherwise, does not work - plays like a movie
+    [S] Kanaya: Return to the Core. 005221 / 03318
+	breaks if swfmilled
+    [S] John: Enter village.	    004979 / 03077
+	breaks if swfmilled
+    [S] Equius: Seek the highb100d. 005338 / 03435
+	breaks if swfmilled
+    [S] Seer: Descend.		    005595 / 03692
+	breaks if swfmilled
