@@ -24,7 +24,7 @@ def init(storyid, storyloc):
         swix = os.path.join(appdir, 'swfmill')
         
 
-    global _object_template, _log_template, _html_template, _sbahj_template, _scratch_template, _cascade_template, _dota_template
+    global _object_template, _log_template, _html_template, _sbahj_template, _scratch_template, _cascade_template, _dota_template, _index_template
     _object_template = _load_template('flash.txt')
     _log_template = _load_template('pesterlog.txt')
     _html_template = _load_template('page.txt')
@@ -32,6 +32,7 @@ def init(storyid, storyloc):
     _scratch_template = _load_template('page_scratch.txt')
     _cascade_template = _load_template('page_cascade.txt')
     _dota_template = _load_template('page_dota.txt')
+    _index_template = _load_template('index.txt')
 
     _mkdir('images')
     _get_global('images/logo.gif')
@@ -49,7 +50,13 @@ def init(storyid, storyloc):
     for directory in stories.dirs(story):
         _mkdir(directory)
 
+### cleanup ###
 def finalise():
+    _name_commands()
+    _delete_xml()
+    _gen_index()
+
+def _name_commands():
     pages = filter(lambda path: path.endswith('.html'), os.listdir(os.path.join(archdir, story)))
     for page in pages:
         with open('{0}/{1}/{2}'.format(archdir, story, page), 'r') as pagefile:
@@ -59,6 +66,7 @@ def finalise():
         with open('{0}/{1}/{2}'.format(archdir, story, page), 'w') as pagefile:
             pagefile.write(text)
 
+def _delete_xml():
     flashes = [os.path.join(archdir, root, path) for path in os.listdir(os.path.join(archdir, root)) if re.match(r'\d\d\d\d\d$', path)]
     if os.path.exists(os.path.join(archdir,'cascade')):
         flashes += [os.path.join(archdir,'cascade')]
@@ -232,8 +240,22 @@ def cascade_exists(filename):
 
 
 ### HTML output ###
+def _gen_index():
+    first_page = '{0:06}'.format(stories.first_page(story))
+    first_cmd = _page_command(first_page)
+    print('[{0}]'.format(first_cmd))
+
+    html = _index_template.format(
+        command=first_cmd,
+        story=story,
+        page=first_page
+    )
+
+    with open(os.path.join(archdir, 'index.html'), 'w') as f:
+        f.write(html)
+
 def gen_html(page, command, assets, content, links):
-    print('>',command.encode(sys.stdout.encoding, errors='ignore').decode(sys.stdout.encoding))
+    print('>', command.encode(sys.stdout.encoding, errors='ignore').decode(sys.stdout.encoding).replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&'))
     sys.stdout.flush()
 
     images = map(_format_asset, assets)

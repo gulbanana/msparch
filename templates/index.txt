@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{command}</title>
+		<meta http-equiv="REFRESH" content="0;{story}/{page}.html">
+	</head>
+</html>
