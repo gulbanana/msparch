@@ -114,7 +114,6 @@ class SiteReader:
     # retrieve any type of file
     def _get_other(self, uri):
         filename = urlparse(uri).path[1:]
-
         if not archive.misc_exists(filename):
             data = urlopen(uri).readall()
             archive.save_misc(filename, data)
@@ -137,8 +136,8 @@ class SiteReader:
         for img in re.findall(r'src="(.*?)"', html):
             if 'logo' in img:    # site logo
                 pass
-            elif '..' in img:  # donation command images
-                self._get_other('{0}{1}'.format(site_prefix, img[3:]))
+            elif '..' in img or 'extras' in img:  # donation command images
+                self._get_other(img)
             else:                          # wayward vagabond images
                 self._get_other('{0}{1}'.format(uri, img))
 
