@@ -26,7 +26,7 @@ def dirs(story):
     elif story == '5':
         return ['storyfiles/hs']
     elif story == '6':
-        return ['storyfiles/hs2', 'storyfiles/hs2/scraps', 'storyfiles/hs2/scratch', 'scraps', 'scraps2']
+        return ['storyfiles/hs2', 'storyfiles/hs2/scraps', 'storyfiles/hs2/scratch', 'scraps', 'scraps2', 'extras']
     elif story == 'ryanquest':
         return ['ryanquest']
     else:
