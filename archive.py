@@ -167,10 +167,10 @@ def _flash_fix_links(flashid):
     if flashid in ['02791', '03318', '03077', '03435', '03692']:
         return
 
-    with open(xml, 'r') as f:
+    with open(xml, 'r', encoding='latin1') as f:
         text = f.readlines()
     text = map(_rewrite_links, text)
-    with open(xml, 'w') as f:
+    with open(xml, 'w', encoding='latin1') as f:
         f.writelines(text)
 
     with open(os.devnull, 'w') as null:
