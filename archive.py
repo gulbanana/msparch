@@ -147,7 +147,7 @@ def flash_nexts(flashid):
         with open(os.devnull, 'w') as null:
             subprocess.call([swix, 'swf2xml', swf, xml], stdout=null)
 
-    with open(xml, 'r', encoding='utf-8') as f:
+    with open(xml, 'r', encoding='latin1') as f:    # note: swfmill generates files that CLAIM to be utf-8 but are not
         for line in f.readlines():
             match = re.search(r'(\d\d\d\d\d\d).html', line)
             if match:
