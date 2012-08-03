@@ -257,7 +257,7 @@ def _gen_index():
     with open(os.path.join(archdir, 'index.html'), 'w') as f:
         f.write(html)
 
-def gen_html(page, command, assets, content, links):
+def gen_html(page, command, assets, content, links, previous_page):
     print('>', command.encode(sys.stdout.encoding, errors='ignore').decode(sys.stdout.encoding).replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&'))
     sys.stdout.flush()
 
@@ -265,19 +265,20 @@ def gen_html(page, command, assets, content, links):
     anchors = map(_format_anchor, links)
     content = map(_rewrite_links, content)
     content = _rewrite_dialogue(list(content))
+    navigation = _format_navigation(previous_page)
 
     room, alt, img = stories.scratch_banner(page)
     if room:
         banner = _format_banner(room)
-        html = _scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors), banner=banner, alt_text=alt, alt_img='imgtip[{0}]'.format(img))
+        html = _scratch_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), commands=''.join(anchors), banner=banner, alt_text=alt, alt_img='imgtip[{0}]'.format(img), navigation=navigation)
     elif page == '005982':
-        html = _sbahj_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
+        html = _sbahj_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), commands=''.join(anchors), navigation=navigation)
     elif page == '006009':
-        html = _cascade_template.format(assets=_format_cascade(), navigation=''.join(anchors), banner='../images/header_cascade.gif')
+        html = _cascade_template.format(assets=_format_cascade(), commands=''.join(anchors), banner='../images/header_cascade.gif')
     elif page == '006715':
-        html = _dota_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
+        html = _dota_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), commands=''.join(anchors))
     else:
-        html = _html_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), navigation=''.join(anchors))
+        html = _html_template.format(command=command, assets='<br/>\n<br/>\n'.join(images), narration='<br/>\n'.join(content), commands=''.join(anchors), navigation=navigation)
     
     with open('{0}/{1}/{2}.html'.format(archdir, story, page), 'w') as f:
         f.write(html)
@@ -351,3 +352,9 @@ def _rewrite_dialogue(text):
         return [_log_template.format(title=logtype.group(1).capitalize(), pesterlog='<br/>\n'.join(text[1:]))]
             
     return text
+
+def _format_navigation(previous_page):
+    if previous_page == None:
+        return ''
+    else:
+        return '<span style="font-size: 10px;"><b><a href="../{0}/{1:06}.html">Start Over</a> | <a href="../{0}/{2}.html">Go Back</a></b></span>'.format(story, stories.first_page(story), previous_page)

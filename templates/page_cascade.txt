@@ -66,8 +66,8 @@
                         <table width="600" border="0" align="center" cellpadding="0" cellspacing="0">
                             <tr>
                                 <td>
-                                    {navigation}
-                                    <br><br>
+				    {commands}
+				    <br><br>
                                 </td>
                             </tr>
                         </table>

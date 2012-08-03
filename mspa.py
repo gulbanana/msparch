@@ -35,7 +35,7 @@ class SiteReader:
                 accumulator.append(line.decode(stories.encoding(self.story)))
 
     # retrieve one page
-    def get_page(self, page):
+    def get_page(self, page, source):
         if archive.page_exists(page):
             definition = archive.page_load(page)
         else:
@@ -66,9 +66,9 @@ class SiteReader:
                 if not 'sweetbroandhellajeff' in match:
                     self._get_asset(site_prefix+match)
 
-        archive.gen_html(page, command[0], art, narration, next_pages)
+        archive.gen_html(page, command[0], art, narration, next_pages, source)
 
-        return map(lambda s: s.strip(), next_pages + hidden_nexts)
+        return map(lambda s: (s.strip(), page), next_pages + hidden_nexts)
 
     # retrieve an non-page asset. this can trigger additional page loads 
     def _get_asset(self, uri):
@@ -171,6 +171,6 @@ class SiteReader:
             data = urlopen(uri).readall()
             archive.save_cascade(prefix, filename, data)
 
-        archive.gen_html('006009', '[S] Cascade', [], [''], ['006010'])
+        archive.gen_html('006009', '[S] Cascade', [], [''], ['006010'], '006008')
 
-        return ['006010']
+        return [('006010', '006009')]

@@ -24,9 +24,9 @@ if args.page == 0:
 archive.init(args.story, args.directory)
 downloader = mspa.SiteReader(args.story)
 
-pages = ['{0:06}'.format(args.page)]
-for page in pages:
-    next_pages = downloader.get_page(page)
-    pages.extend([p for p in next_pages if p not in set(pages)])
+pages = [('{0:06}'.format(args.page), None)]
+for (page, source) in pages:
+    next_pages = downloader.get_page(page, source)
+    pages.extend([(p, s) for (p, s) in next_pages if p not in set(list(zip(*pages))[0])])
 
 archive.finalise()
