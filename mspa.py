@@ -103,6 +103,25 @@ class SiteReader:
         if flashid == '04812':
             uri = 'http://www.mspaintadventures.com/DOTA'
 
+        if flashid == '02791':
+            song_prefix = site_prefix + 'storyfiles/hs2/songs/alterniaboundsongs/'
+            self._get_other(song_prefix + 'ERROR.mp3')
+            self._get_other(song_prefix + 'secretrom.mp3')
+            self._get_other(song_prefix + 'Crustacean.mp3')
+            self._get_other(song_prefix + 'VriskasTheme3.mp3')
+            self._get_other(song_prefix + 'terezistheme.mp3')
+            self._get_other(song_prefix + 'spidersclawLOOP2.mp3')
+            self._get_other(song_prefix + 'THE_NIC_CAGE_SONG.mp3')
+            self._get_other(song_prefix + 'Nic_Cage_Romance.mp3')
+            self._get_other(song_prefix + 'A%20Tender%20Moment.mp3')
+            self._get_other(song_prefix + 'Alterniabound.mp3')
+            self._get_other(song_prefix + 'MEGALOVANIA.mp3')
+            self._get_other(song_prefix + 'boyskylark.mp3')
+            self._get_other(song_prefix + 'herosgrowth.mp3')
+            self._get_other(song_prefix + 'phrenicphever.mp3')
+            self._get_other(song_prefix + 'walkstabwalk.mp3')
+            self._get_other(song_prefix + 'Horschestra.mp3')
+
         if not archive.flash_exists(flashid):
             js = urlopen(uri + '/AC_RunActiveContent.js').readall()
             swf = urlopen('{0}/{1}.swf'.format(uri, flashid)).readall()

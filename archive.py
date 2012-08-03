@@ -163,8 +163,8 @@ def _flash_fix_links(flashid):
     with open(os.devnull, 'w') as null:
         subprocess.call([swix, 'swf2xml', swf, xml], stdout=null)
     
-    # walkarounds don't need linkfixing and are broken by it
-    if flashid in ['02791', '03318', '03077', '03435', '03692']:
+    # walkarounds are broken by swfmill linkfixing
+    if flashid in ['03318', '03077', '03435', '03692']:
         return
 
     with open(xml, 'r', encoding='latin1') as f:
