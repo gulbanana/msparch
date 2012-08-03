@@ -129,7 +129,7 @@ def save_flash(flashid, script, data):
     flashdir = '{0}/{1}'.format(root, flashid)
     _mkdir(flashdir)
     _save_binary(flashdir, 'AC_RunActiveContent.js', script)
-    _save_binary(flashdir, '{0}.swf'.format(flashid), data)
+    _save_binary(flashdir, '{0}.swf'.format(flashid[-5:]), data)
     _flash_fix_links(flashid)
 
 def flash_exists(flashid):
@@ -140,8 +140,8 @@ def flash_load(flashid):
 
 def flash_nexts(flashid):
     nexts = []
-    xml = '{2}/{0}/{1}/{1}.xml'.format(root, flashid, archdir)
-    swf = '{2}/{0}/{1}/{1}.swf'.format(root, flashid, archdir)
+    xml = '{2}/{0}/{1}/{3}.xml'.format(root, flashid, archdir, flashid[-5:])
+    swf = '{2}/{0}/{1}/{3}.swf'.format(root, flashid, archdir, flashid[-5:])
     
     if not os.path.exists(xml):
         with open(os.devnull, 'w') as null:
@@ -149,16 +149,15 @@ def flash_nexts(flashid):
 
     with open(xml, 'r', encoding='latin1') as f:    # note: swfmill generates files that CLAIM to be utf-8 but are not
         for line in f.readlines():
-            match = re.search(r'(\d\d\d\d\d\d).html', line)
+            match = re.search(r'\.\./{0}/(.*).html'.format(story), line)
             if match:
-                if int(match.group(1)) >= int(stories.first_page(story)):
-                    nexts.append(match.group(1))
+                nexts.append(match.group(1))
  
     return nexts
 
 def _flash_fix_links(flashid):
-    xml = '{2}/{0}/{1}/{1}.xml'.format(root, flashid, archdir)
-    swf = '{2}/{0}/{1}/{1}.swf'.format(root, flashid, archdir)
+    xml = '{2}/{0}/{1}/{3}.xml'.format(root, flashid, archdir, flashid[-5:])
+    swf = '{2}/{0}/{1}/{3}.swf'.format(root, flashid, archdir, flashid[-5:])
 
     with open(os.devnull, 'w') as null:
         subprocess.call([swix, 'swf2xml', swf, xml], stdout=null)
@@ -177,8 +176,8 @@ def _flash_fix_links(flashid):
         subprocess.call([swix, 'xml2swf', xml, swf], stdout=null)
 
 def _flash_dimensions(flashid):
-    xml = '{2}/{0}/{1}/{1}.xml'.format(root, flashid, archdir)
-    swf = '{2}/{0}/{1}/{1}.swf'.format(root, flashid, archdir)
+    xml = '{2}/{0}/{1}/{3}.xml'.format(root, flashid, archdir, flashid[-5:])
+    swf = '{2}/{0}/{1}/{3}.swf'.format(root, flashid, archdir, flashid[-5:])
 
     if not os.path.exists(xml):
         with open(os.devnull, 'w') as null:
@@ -325,7 +324,7 @@ def _format_internal_page(match):
     page = match.group(3)
     if page == None:
         page = '{0:06}'.format(stories.first_page(other_story))
-    return '../{0}/{1}.html'.format(other_story, page)
+    return '../{0}/{1}.html"'.format(other_story, page)
 
 def _format_internal_asset(match):
     filename = match.group(1)
@@ -340,7 +339,7 @@ def _format_wv(match):
 
 def _rewrite_links(text):
     text = re.sub(site_prefix+r'scratch\.php\?s=(\d*)(&amp;p=(\d*))?', _format_internal_page, text)
-    text = re.sub(site_prefix+r'\?s=(\d*)(&amp;p=(\d*))?', _format_internal_page, text)
+    text = re.sub(site_prefix+r'\?s=(\d*)(&amp;p=(.*?))?"', _format_internal_page, text)
     text = re.sub(site_prefix+r'(.*)"', _format_internal_asset, text)
     text = re.sub(r'waywardvagabond/(.*?)/', _format_wv, text)
     return text

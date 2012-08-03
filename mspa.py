@@ -124,7 +124,7 @@ class SiteReader:
 
         if not archive.flash_exists(flashid):
             js = urlopen(uri + '/AC_RunActiveContent.js').readall()
-            swf = urlopen('{0}/{1}.swf'.format(uri, flashid)).readall()
+            swf = urlopen('{0}/{1}.swf'.format(uri, flashid[-5:])).readall()
             archive.save_flash(flashid, js, swf)
 
         # additional nexts

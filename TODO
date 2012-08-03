@@ -2,3 +2,9 @@ some flash oddities:
     [S] YOU THERE. BOY. (002153 / 00253) works ONLY if run through swfmill. seems that swix doesn't work either. weird! but it does work..
     the alterniabound style walkarounds break if swfmilled - which they don't need to be. however...
     [S] Past Karkat: Wake up. (004692 / 02791) DOES have to be milled, and as a consequence is sort of broken; you need to right click->play. 
+
+- add proper navigation - back buttons and ideally lists/maps
+
+- recheck the last page of a story to see if there's more to download
+
+- fix darkcage links
